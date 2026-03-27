@@ -64,17 +64,19 @@ db.exec(`
 
 
 
-// ลบ user เก่า (กันพัง)
-db.prepare('DELETE FROM users WHERE username = ?').run('admin');
-
-// สร้างใหม่
 const hash = bcrypt.hashSync('admin1234', 10);
-db.prepare(`
-  INSERT INTO users (username, password, role)
-  VALUES (?, ?, ?)
-`).run('admin', hash, 'admin');
 
-console.log('✅ RESET ADMIN USER: admin/admin1234');
+db.prepare(`
+  INSERT OR REPLACE INTO users (id, username, password, role)
+  VALUES (
+    (SELECT id FROM users WHERE username = 'admin'),
+    'admin',
+    ?,
+    'admin'
+  )
+`).run(hash);
+
+console.log('✅ UPSERT ADMIN USER: admin/admin1234');
 
   // Seed demo records
   const today = new Date();
