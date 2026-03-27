@@ -362,27 +362,7 @@ input.error,select.error{border-color:var(--danger)}
       <button class="btn btn-ghost" onclick="exportExcel()">📥 Export Excel</button>
     </div>
   </div>
-<script>
-async function login(e) {
-  e.preventDefault();
-  console.log('login clicked');
 
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-
-  try {
-    const data = await api('POST', '/auth/login', { username, password });
-
-    token = data.token;
-    localStorage.setItem('ins_token', token);
-
-    alert('Login สำเร็จ');
-    location.reload();
-  } catch (err) {
-    alert(err.message);
-  }
-}
-</script>
   <div class="content">
 
     <!-- DASHBOARD -->
