@@ -362,27 +362,7 @@ input.error,select.error{border-color:var(--danger)}
       <button class="btn btn-ghost" onclick="exportExcel()">📥 Export Excel</button>
     </div>
   </div>
-<script>
-async function login(e) {
-  e.preventDefault();
-  console.log('login clicked');
 
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-
-  try {
-    const data = await api('POST', '/auth/login', { username, password });
-
-    token = data.token;
-    localStorage.setItem('ins_token', token);
-
-    alert('Login สำเร็จ');
-    location.reload();
-  } catch (err) {
-    alert(err.message);
-  }
-}
-</script>
   <div class="content">
 
     <!-- DASHBOARD -->
@@ -666,16 +646,19 @@ async function login(e) {
 // ══════════════════════════════════════
 // CONFIG & STATE
 // ══════════════════════════════════════
-const API = '';  // same origin — change to http://localhost:3000 if serving separately
+const API = '';  // same origin (works on Railway, Render, VPS, localhost)
 let token = localStorage.getItem('ins_token');
 let currentUser = null;
-let xlsxData = null; // parsed xlsx
+let xlsxData = null;
 let xlsxHeaders = [];
+
+let _loadCount = 0;
 
 // ══════════════════════════════════════
 // API HELPER
 // ══════════════════════════════════════
 async function api(method, path, body) {
+  _loadCount++;
   showLoading(true);
   try {
     const res = await fetch(API + '/api' + path, {
@@ -683,10 +666,29 @@ async function api(method, path, body) {
       headers: { 'Content-Type':'application/json', ...(token?{'Authorization':'Bearer '+token}:{}) },
       body: body ? JSON.stringify(body) : undefined
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
+    // Handle non-JSON or empty response
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : {}; }
+    catch { data = { error: `Server error (${res.status})` }; }
+
+    if (res.status === 401) {
+      // Token expired → force logout
+      token = null; localStorage.removeItem('ins_token');
+      doLogout();
+      throw new Error('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+    }
+    if (!res.ok) throw new Error(data.error || `เกิดข้อผิดพลาด (${res.status})`);
     return data;
-  } finally { showLoading(false); }
+  } catch(err) {
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      throw new Error('ไม่สามารถเชื่อมต่อ Server ได้ กรุณาตรวจสอบการเชื่อมต่อ');
+    }
+    throw err;
+  } finally {
+    _loadCount--;
+    if (_loadCount <= 0) { _loadCount=0; showLoading(false); }
+  }
 }
 
 function showLoading(v) {
@@ -733,22 +735,30 @@ async function initApp() {
   document.getElementById('app').style.display='';
   document.getElementById('user-fullname').textContent = currentUser.fullName || currentUser.username;
   document.getElementById('user-role-label').textContent = currentUser.role==='admin'?'ผู้ดูแลระบบ':'ผู้ใช้งาน';
-  document.getElementById('user-avatar').textContent = (currentUser.fullName||currentUser.username)[0].toUpperCase();
-  // show/hide admin items
+  const nameChar = (currentUser.fullName||currentUser.username||'?')[0];
+  document.getElementById('user-avatar').textContent = nameChar.toUpperCase();
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = currentUser.role==='admin' ? '' : 'none';
   });
   populateYearSelect();
-  navigate('dashboard');
+  try { await navigate('dashboard'); } catch(e) { console.error('Dashboard load error:', e); }
 }
 
 // Auto-login if token exists
 async function tryAutoLogin() {
+  // Always show login screen first as fallback
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+
   if (!token) return;
   try {
     currentUser = await api('GET','/auth/me');
-    initApp();
-  } catch { token=null; localStorage.removeItem('ins_token'); }
+    await initApp();
+  } catch {
+    token=null;
+    localStorage.removeItem('ins_token');
+    // Login screen already visible — nothing more needed
+  }
 }
 
 // ══════════════════════════════════════
@@ -759,27 +769,52 @@ const titles = {dashboard:'Dashboard',records:'ข้อมูลประกั
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById(`page-${page}`)?.classList.add('active');
+  const pageEl = document.getElementById(`page-${page}`);
+  if (!pageEl) return;
+  pageEl.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes(`'${page}'`))n.classList.add('active')});
   document.getElementById('page-title').textContent = titles[page]||page;
   const loaders = {dashboard:loadDashboard,records:loadRecords,monthly:loadMonthly,yearly:loadYearly,expiring:loadExpiring,users:loadUsers,logs:loadLogs};
-  loaders[page]?.();
+  const fn = loaders[page];
+  if (fn) fn().catch(err => showPageError(page, err));
+}
+
+function showPageError(page, err) {
+  showLoading(false);
+  const pageEl = document.getElementById(`page-${page}`);
+  if (!pageEl) return;
+  // Don't overwrite if already has content
+  const existing = pageEl.querySelector('.card,.kpi-grid');
+  if (existing && existing.textContent.trim()) return;
+  pageEl.innerHTML = `
+    <div style="text-align:center;padding:80px 24px">
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <h3 style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px">ไม่สามารถโหลดข้อมูลได้</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">${err.message||'เกิดข้อผิดพลาด กรุณาลองใหม่'}</p>
+      <button class="btn btn-primary" onclick="navigate('${page}')">🔄 ลองใหม่</button>
+    </div>`;
 }
 
 // ══════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════
 async function loadDashboard() {
-  const [dash, recs] = await Promise.all([api('GET','/summary/dashboard'), api('GET','/records?status=expiring')]);
-  document.getElementById('kpi-total').textContent = dash.total.toLocaleString();
-  document.getElementById('kpi-premium').textContent = Math.round(dash.totalPremium).toLocaleString();
-  document.getElementById('kpi-expiring').textContent = dash.expiring;
-  document.getElementById('kpi-expired').textContent = dash.expired;
-  document.getElementById('nb-total').textContent = dash.total;
-  document.getElementById('nb-expiring').textContent = dash.expiring + dash.expired;
+  // Reset KPIs to loading state
+  ['kpi-total','kpi-premium','kpi-expiring','kpi-expired'].forEach(id=>{
+    document.getElementById(id).textContent='...';
+  });
 
-  // Build charts from records
-  const allRecs = await api('GET','/records');
+  const [dash, allRecs] = await Promise.all([
+    api('GET','/summary/dashboard'),
+    api('GET','/records')
+  ]);
+
+  document.getElementById('kpi-total').textContent = (dash.total||0).toLocaleString();
+  document.getElementById('kpi-premium').textContent = Math.round(dash.totalPremium||0).toLocaleString();
+  document.getElementById('kpi-expiring').textContent = dash.expiring||0;
+  document.getElementById('kpi-expired').textContent = dash.expired||0;
+  document.getElementById('nb-total').textContent = dash.total||0;
+  document.getElementById('nb-expiring').textContent = (dash.expiring||0) + (dash.expired||0);
   const types = ['ชั้น 1','ชั้น 2+','ชั้น 3+','ชั้น 3','พ.ร.บ.'];
   const colors = ['#3b82f6','#8b5cf6','#10b981','#f97316','#f59e0b'];
   const typeChart = document.getElementById('type-chart');
@@ -819,7 +854,9 @@ async function loadRecords() {
   if (q) url+=`search=${encodeURIComponent(q)}&`;
   if (type) url+=`type=${encodeURIComponent(type)}&`;
   if (status) url+=`status=${status}`;
-  const rows = await api('GET', url);
+  let rows;
+  try { rows = await api('GET', url); }
+  catch(e) { toast('โหลดข้อมูลไม่ได้: '+e.message,'error'); return; }
   const tbody = document.getElementById('records-tbody');
   const empty = document.getElementById('records-empty');
   const count = document.getElementById('records-count');
@@ -830,7 +867,7 @@ async function loadRecords() {
     <td style="color:var(--text-muted);font-size:11px">${i+1}</td>
     <td class="td-mono font-bold">${r.plate}</td><td>${r.car_model||'—'}</td><td>${r.company}</td>
     <td>${typeBadge(r.type)}</td>
-    <td class="text-right td-mono">${Math.round(r.premium).toLocaleString()}</td>
+    <td class="text-right td-mono">${Math.round(r.premium||0).toLocaleString()}</td>
     <td>${fmtDate(r.pay_date)}</td><td>${fmtDate(r.end_date)}</td>
     <td>${statusBadge(r.end_date)}</td>
     <td><div class="flex gap-2">
@@ -900,9 +937,10 @@ function openAddModal() {
 }
 
 async function openEditModal(id) {
-  const rows = await api('GET',`/records?search=`);
-  const r = (await api('GET','/records')).find(x=>x.id===id);
-  if(!r) return;
+  // Fetch single record by filtering
+  const allRecs = await api('GET','/records');
+  const r = allRecs.find(x=>x.id===id);
+  if(!r) { toast('ไม่พบข้อมูล','error'); return; }
   document.getElementById('modal-rec-title').textContent='✏️ แก้ไขข้อมูลประกัน';
   document.getElementById('f-id').value=r.id;
   document.getElementById('f-company').value=r.company||'';

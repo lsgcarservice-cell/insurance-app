@@ -151,6 +151,12 @@ app.get('/api/records', auth, (req, res) => {
   res.json(rows);
 });
 
+app.get('/api/records/:id', auth, (req, res) => {
+  const row = db.prepare('SELECT * FROM records WHERE id=?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Not found' });
+  res.json(row);
+});
+
 app.post('/api/records', auth, (req, res) => {
   const r = req.body;
   if (!r.company||!r.type||!r.plate) return res.status(400).json({ error: 'กรุณากรอกข้อมูลที่จำเป็น' });
