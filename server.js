@@ -93,7 +93,7 @@ console.log('✅ RESET ADMIN USER: admin/admin1234');
   const insertRec = db.prepare(`INSERT INTO records (company,type,plate,start_date,end_date,premium,pay_date,note,car_model,owner,dept_budget,dept_use,branch,tax_due,created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`);
   demoRecords.forEach(r => insertRec.run(...r));
   console.log('🌱 Seeded demo records');
-}
+
 
 // ─── Auth Middleware ───────────────────────────────
 function auth(req, res, next) {
