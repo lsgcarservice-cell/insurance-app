@@ -56,3 +56,41 @@ async function del(id) {
 }
 
 if (location.pathname.includes('dashboard')) load();
+function showDashboard() {
+  dashboard.style.display = '';
+  customers.style.display = 'none';
+  loadDashboard();
+}
+
+function showCustomers() {
+  dashboard.style.display = 'none';
+  customers.style.display = '';
+  load();
+}
+
+function openModal() {
+  modal.style.display = 'block';
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  location.href = '/';
+}
+
+// ===== Dashboard =====
+async function loadDashboard() {
+  const res = await fetch('/api/reports/summary', {
+    headers: { Authorization: 'Bearer ' + token }
+  });
+
+  const d = await res.json();
+
+  c_total.innerText = d.customers;
+  c_policy.innerText = d.policies;
+  c_money.innerText = d.revenue;
+}
+
+// ปิด modal เมื่อคลิกพื้นหลัง
+window.onclick = function(e) {
+  if (e.target == modal) modal.style.display = "none";
+}

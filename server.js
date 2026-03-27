@@ -45,3 +45,14 @@ app.use('/api/customers', require('./routes/customers')(db));
 app.listen(process.env.PORT || 3000, () =>
   console.log("🚀 Server started")
 );
+db.prepare(`
+CREATE TABLE IF NOT EXISTS policies (
+  id INTEGER PRIMARY KEY,
+  customer_id INTEGER,
+  car_value REAL,
+  type TEXT,
+  premium REAL,
+  vat REAL,
+  total REAL,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)`).run();
