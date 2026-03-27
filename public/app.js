@@ -94,3 +94,76 @@ async function loadDashboard() {
 window.onclick = function(e) {
   if (e.target == modal) modal.style.display = "none";
 }
+let customersData = [];
+
+function showDashboard() {
+  pageTitle.innerText = "Dashboard";
+  dashboard.style.display = '';
+  customers.style.display = 'none';
+  loadDashboard();
+}
+
+function showCustomers() {
+  pageTitle.innerText = "Customers";
+  dashboard.style.display = 'none';
+  customers.style.display = '';
+  load();
+}
+
+async function load() {
+  const res = await fetch('/api/customers', {
+    headers:{Authorization:'Bearer '+token}
+  });
+  customersData = await res.json();
+  render(customersData);
+}
+
+function render(data) {
+  list.innerHTML = data.map(c=>`
+    <tr>
+      <td>${c.name}</td>
+      <td>${c.phone}</td>
+      <td>${c.car}</td>
+      <td><button class="btn btn-del" onclick="del(${c.id})">ลบ</button></td>
+    </tr>
+  `).join('');
+}
+
+function search(q) {
+  const f = customersData.filter(c =>
+    c.name.toLowerCase().includes(q.toLowerCase())
+  );
+  render(f);
+}
+
+async function loadDashboard() {
+  const res = await fetch('/api/reports/summary',{
+    headers:{Authorization:'Bearer '+token}
+  });
+  const d = await res.json();
+
+  c1.innerText = d.customers;
+  c2.innerText = d.policies;
+  c3.innerText = d.revenue;
+
+  new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Customers','Policies','Revenue'],
+      datasets: [{
+        data: [d.customers, d.policies, d.revenue]
+      }]
+    }
+  });
+}
+
+function logout(){
+  localStorage.clear();
+  location.href='/';
+}
+
+window.onclick = e=>{
+  if(e.target==modal) modal.style.display='none';
+};
+
+if(location.pathname.includes('dashboard')) showDashboard();
