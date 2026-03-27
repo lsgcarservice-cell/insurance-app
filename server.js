@@ -62,15 +62,20 @@ db.exec(`
   );
 `);
 
-// Seed default admin if no users
-const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users').get();
-if (userCount.cnt === 0) {
-  const hash = bcrypt.hashSync('admin1234', 10);
-  db.prepare(`INSERT INTO users (username, password, full_name, role) VALUES (?,?,?,?)`)
-    .run('admin', hash, 'ผู้ดูแลระบบ', 'admin');
-  db.prepare(`INSERT INTO users (username, password, full_name, role) VALUES (?,?,?,?)`)
-    .run('user1', bcrypt.hashSync('user1234', 10), 'ผู้ใช้งาน', 'user');
-  console.log('🌱 Seeded default users: admin/admin1234, user1/user1234');
+// 🔥 FORCE RESET ADMIN USER (แก้ login ไม่ได้)
+const bcrypt = require('bcryptjs');
+
+// ลบ user เก่า (กันพัง)
+db.prepare('DELETE FROM users WHERE username = ?').run('admin');
+
+// สร้างใหม่
+const hash = bcrypt.hashSync('admin1234', 10);
+db.prepare(`
+  INSERT INTO users (username, password, role)
+  VALUES (?, ?, ?)
+`).run('admin', hash, 'admin');
+
+console.log('✅ RESET ADMIN USER: admin/admin1234');
 
   // Seed demo records
   const today = new Date();
