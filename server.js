@@ -62,8 +62,7 @@ db.exec(`
   );
 `);
 
-// 🔥 FORCE RESET ADMIN USER (แก้ login ไม่ได้)
-const bcrypt = require('bcryptjs');
+
 
 // ลบ user เก่า (กันพัง)
 db.prepare('DELETE FROM users WHERE username = ?').run('admin');
