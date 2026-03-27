@@ -56,7 +56,6 @@ CREATE TABLE IF NOT EXISTS policies (
   total REAL,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 )`).run();
-GET /api/customers
 POST /api/customers
 DELETE /api/customers/id
 GET /api/reports/summary
