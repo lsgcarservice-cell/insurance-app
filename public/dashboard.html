@@ -4,24 +4,24 @@
   <title>Insurance SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
       margin:0;
-      font-family: 'Segoe UI';
+      font-family: Inter, sans-serif;
       display:flex;
-      background:#f1f5f9;
+      background:#0f172a;
+      color:white;
     }
 
     /* Sidebar */
     .sidebar {
       width:240px;
-      background:linear-gradient(180deg,#0f172a,#1e293b);
-      color:white;
-      height:100vh;
+      background:#020617;
       padding:20px;
+      height:100vh;
+      border-right:1px solid #1e293b;
     }
 
     .sidebar h2 {
@@ -33,15 +33,16 @@
       padding:12px;
       margin-bottom:10px;
       border:none;
-      background:transparent;
-      color:#cbd5f1;
+      background:none;
+      color:#94a3b8;
       text-align:left;
       cursor:pointer;
+      border-radius:8px;
     }
 
     .sidebar button:hover {
-      background:#334155;
-      border-radius:8px;
+      background:#1e293b;
+      color:white;
     }
 
     /* Main */
@@ -50,7 +51,6 @@
       padding:20px;
     }
 
-    /* Topbar */
     .topbar {
       display:flex;
       justify-content:space-between;
@@ -61,48 +61,37 @@
       padding:10px;
       width:250px;
       border-radius:8px;
-      border:1px solid #ddd;
+      border:none;
+      background:#1e293b;
+      color:white;
     }
 
     /* Cards */
     .cards {
       display:flex;
       gap:20px;
-      margin-bottom:20px;
     }
 
     .card {
       flex:1;
       padding:20px;
       border-radius:12px;
-      background:white;
-      box-shadow:0 4px 10px rgba(0,0,0,0.05);
-    }
-
-    /* Chart */
-    canvas {
-      background:white;
-      border-radius:12px;
-      padding:10px;
+      background:#1e293b;
     }
 
     /* Table */
     table {
       width:100%;
       margin-top:20px;
-      background:white;
-      border-radius:12px;
       border-collapse: collapse;
     }
 
     th, td {
       padding:12px;
-      border-bottom:1px solid #eee;
+      border-bottom:1px solid #1e293b;
     }
 
-    th {
-      background:#f8fafc;
-    }
+    th { color:#94a3b8; }
 
     /* Button */
     .btn {
@@ -112,20 +101,19 @@
       cursor:pointer;
     }
 
-    .btn-add { background:#22c55e; color:white; }
-    .btn-del { background:#ef4444; color:white; }
+    .btn-add { background:#22c55e; }
+    .btn-del { background:#ef4444; }
 
     /* Modal */
     .modal {
       display:none;
       position:fixed;
       width:100%; height:100%;
-      background:rgba(0,0,0,0.5);
-      top:0;
+      background:rgba(0,0,0,0.6);
     }
 
     .modal-box {
-      background:white;
+      background:#1e293b;
       padding:20px;
       width:300px;
       margin:10% auto;
@@ -136,13 +124,16 @@
       width:100%;
       padding:10px;
       margin-bottom:10px;
+      border:none;
+      border-radius:8px;
+      background:#020617;
+      color:white;
     }
   </style>
 </head>
 
 <body>
 
-<!-- Sidebar -->
 <div class="sidebar">
   <h2>🚗 Insurance</h2>
   <button onclick="showDashboard()">Dashboard</button>
@@ -150,12 +141,10 @@
   <button onclick="logout()">Logout</button>
 </div>
 
-<!-- Main -->
 <div class="main">
 
-  <!-- Topbar -->
   <div class="topbar">
-    <h2 id="pageTitle">Dashboard</h2>
+    <h2 id="title">Dashboard</h2>
     <input class="search" placeholder="ค้นหา..." oninput="search(this.value)">
   </div>
 
@@ -172,7 +161,7 @@
 
   <!-- Customers -->
   <div id="customers" style="display:none;">
-    <button class="btn btn-add" onclick="modal.style.display='block'">+ เพิ่มลูกค้า</button>
+    <button class="btn btn-add" onclick="modal.style.display='block'">+ เพิ่ม</button>
 
     <table>
       <thead>
@@ -189,10 +178,8 @@
 
 </div>
 
-<!-- Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
-    <h3>เพิ่มลูกค้า</h3>
     <input id="name" placeholder="ชื่อ">
     <input id="phone" placeholder="เบอร์">
     <input id="car" placeholder="รถ">
@@ -201,6 +188,5 @@
 </div>
 
 <script src="app.js"></script>
-
 </body>
 </html>
