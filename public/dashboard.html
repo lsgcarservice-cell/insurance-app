@@ -1,192 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <title>Insurance SaaS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    body {
-      margin:0;
-      font-family: Inter, sans-serif;
-      display:flex;
-      background:#0f172a;
-      color:white;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width:240px;
-      background:#020617;
-      padding:20px;
-      height:100vh;
-      border-right:1px solid #1e293b;
-    }
-
-    .sidebar h2 {
-      margin-bottom:30px;
-    }
-
-    .sidebar button {
-      width:100%;
-      padding:12px;
-      margin-bottom:10px;
-      border:none;
-      background:none;
-      color:#94a3b8;
-      text-align:left;
-      cursor:pointer;
-      border-radius:8px;
-    }
-
-    .sidebar button:hover {
-      background:#1e293b;
-      color:white;
-    }
-
-    /* Main */
-    .main {
-      flex:1;
-      padding:20px;
-    }
-
-    .topbar {
-      display:flex;
-      justify-content:space-between;
-      margin-bottom:20px;
-    }
-
-    .search {
-      padding:10px;
-      width:250px;
-      border-radius:8px;
-      border:none;
-      background:#1e293b;
-      color:white;
-    }
-
-    /* Cards */
-    .cards {
-      display:flex;
-      gap:20px;
-    }
-
-    .card {
-      flex:1;
-      padding:20px;
-      border-radius:12px;
-      background:#1e293b;
-    }
-
-    /* Table */
-    table {
-      width:100%;
-      margin-top:20px;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding:12px;
-      border-bottom:1px solid #1e293b;
-    }
-
-    th { color:#94a3b8; }
-
-    /* Button */
-    .btn {
-      padding:6px 10px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
-
-    .btn-add { background:#22c55e; }
-    .btn-del { background:#ef4444; }
-
-    /* Modal */
-    .modal {
-      display:none;
-      position:fixed;
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.6);
-    }
-
-    .modal-box {
-      background:#1e293b;
-      padding:20px;
-      width:300px;
-      margin:10% auto;
-      border-radius:12px;
-    }
-
-    input {
-      width:100%;
-      padding:10px;
-      margin-bottom:10px;
-      border:none;
-      border-radius:8px;
-      background:#020617;
-      color:white;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<link rel="stylesheet" href="/style.css">
 </head>
-
 <body>
 
-<div class="sidebar">
-  <h2>🚗 Insurance</h2>
-  <button onclick="showDashboard()">Dashboard</button>
-  <button onclick="showCustomers()">Customers</button>
-  <button onclick="logout()">Logout</button>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>🚗 Insurance</h2>
+    <ul>
+      <li>📊 Dashboard</li>
+      <li>👤 ลูกค้า</li>
+      <li>📝 กรมธรรม์</li>
+      <li>💰 รายงาน</li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <header class="header">
+      <h1>Dashboard</h1>
+      <button onclick="logout()">Logout</button>
+    </header>
+
+    <section class="cards">
+      <div class="card">💰 รายได้<br><b>120,000</b></div>
+      <div class="card">📄 กรมธรรม์<br><b>350</b></div>
+      <div class="card">👥 ลูกค้า<br><b>89</b></div>
+    </section>
+
+  </main>
 </div>
 
-<div class="main">
+<script>
+function logout(){
+  localStorage.removeItem("token");
+  window.location.href = "/";
+}
+</script>
 
-  <div class="topbar">
-    <h2 id="title">Dashboard</h2>
-    <input class="search" placeholder="ค้นหา..." oninput="search(this.value)">
-  </div>
-
-  <!-- Dashboard -->
-  <div id="dashboard">
-    <div class="cards">
-      <div class="card"><h3 id="c1">0</h3><p>Customers</p></div>
-      <div class="card"><h3 id="c2">0</h3><p>Policies</p></div>
-      <div class="card"><h3 id="c3">0</h3><p>Revenue</p></div>
-    </div>
-
-    <canvas id="chart"></canvas>
-  </div>
-
-  <!-- Customers -->
-  <div id="customers" style="display:none;">
-    <button class="btn btn-add" onclick="modal.style.display='block'">+ เพิ่ม</button>
-
-    <table>
-      <thead>
-        <tr>
-          <th>ชื่อ</th>
-          <th>เบอร์</th>
-          <th>รถ</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="list"></tbody>
-    </table>
-  </div>
-
-</div>
-
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <input id="name" placeholder="ชื่อ">
-    <input id="phone" placeholder="เบอร์">
-    <input id="car" placeholder="รถ">
-    <button class="btn btn-add" onclick="add()">บันทึก</button>
-  </div>
-</div>
-
-<script src="app.js"></script>
 </body>
 </html>

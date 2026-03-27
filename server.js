@@ -56,3 +56,8 @@ CREATE TABLE IF NOT EXISTS policies (
   total REAL,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 )`).run();
+app.use(express.static('public'));
+
+app.get('/', (req,res)=>{
+  res.sendFile(__dirname + '/public/login.html');
+});
