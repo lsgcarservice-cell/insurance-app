@@ -7,6 +7,7 @@ const cors       = require('cors');
 const path       = require('path');
 const fs         = require('fs');
 
+const path = require('path');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'insurance_secret_2024_change_me';
@@ -14,6 +15,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'insurance_secret_2024_change_me';
 // ─── Middleware ────────────────────────────────────
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── Database ─────────────────────────────────────
