@@ -1,120 +1,1279 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <title>Insurance SaaS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบจัดการประกันภัยรถยนต์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy:#0f1f3d; --navy-mid:#1a3561; --blue:#1e50a2; --blue-light:#3b82f6;
+  --accent:#f59e0b; --success:#10b981; --danger:#ef4444; --warn:#f97316;
+  --surface:#f8fafc; --surface2:#f1f5f9; --border:#e2e8f0;
+  --text:#0f172a; --text-muted:#64748b; --white:#ffffff;
+  --shadow:0 4px 24px rgba(15,31,61,.10); --shadow-lg:0 8px 40px rgba(15,31,61,.18);
+  --radius:12px; --radius-sm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--surface);color:var(--text);min-height:100vh}
 
-  <style>
-    body {
-      margin:0;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-family: 'Segoe UI';
-      background: linear-gradient(135deg,#0f172a,#1e293b);
-      color:white;
-    }
+/* ── LOGIN ── */
+#login-screen{
+  display:flex;min-height:100vh;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 50%,#1e3a8a 100%);
+  align-items:center;justify-content:center;
+}
+.login-box{
+  background:var(--white);border-radius:20px;padding:48px 44px;
+  width:400px;max-width:95vw;box-shadow:var(--shadow-lg);
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .icon{
+  width:64px;height:64px;background:linear-gradient(135deg,var(--blue),var(--blue-light));
+  border-radius:16px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:30px;margin-bottom:14px;box-shadow:0 4px 16px rgba(30,80,162,.35);
+}
+.login-logo h1{font-size:20px;font-weight:700;color:var(--navy)}
+.login-logo p{font-size:13px;color:var(--text-muted);margin-top:4px}
+.login-form .form-group{margin-bottom:16px}
+.login-form label{font-size:13px;font-weight:600;display:block;margin-bottom:6px;color:var(--text)}
+.login-form input{
+  width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px 14px;font-family:'Sarabun',sans-serif;font-size:14px;
+  transition:border .2s,box-shadow .2s;outline:none;
+}
+.login-form input:focus{border-color:var(--blue-light);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.login-error{
+  background:#fee2e2;border:1px solid #fca5a5;border-radius:var(--radius-sm);
+  padding:10px 14px;font-size:13px;color:#991b1b;margin-bottom:14px;display:none;
+}
+.login-hint{
+  margin-top:20px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);
+  font-size:12px;color:var(--text-muted);line-height:1.6;
+}
+.login-hint strong{color:var(--text)}
 
-    .login-box {
-      width:350px;
-      padding:40px;
-      border-radius:16px;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(20px);
-      box-shadow:0 10px 40px rgba(0,0,0,0.4);
-      text-align:center;
-    }
+/* ── LAYOUT ── */
+#app{display:none}
+.layout{display:flex;min-height:100vh}
 
-    h2 {
-      margin-bottom:20px;
-    }
+/* SIDEBAR */
+.sidebar{
+  width:248px;flex-shrink:0;background:var(--navy);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:100;
+}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo .logo-wrap{display:flex;align-items:center;gap:12px}
+.sidebar-logo .logo-icon{
+  width:40px;height:40px;background:var(--accent);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.sidebar-logo h1{color:var(--white);font-size:13px;font-weight:700;line-height:1.35}
+.sidebar-logo p{color:rgba(255,255,255,.4);font-size:10px;margin-top:2px}
+.user-badge{
+  margin:12px 16px;padding:10px 12px;
+  background:rgba(255,255,255,.06);border-radius:var(--radius-sm);
+  display:flex;align-items:center;gap:8px;
+}
+.user-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue-light),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--white);flex-shrink:0;
+}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:rgba(255,255,255,.4)}
+.nav{padding:12px 10px;flex:1;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase;padding:8px 10px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 11px;border-radius:var(--radius-sm);
+  cursor:pointer;color:rgba(255,255,255,.58);font-size:13.5px;font-weight:500;
+  transition:all .18s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;
+}
+.nav-item:hover{background:rgba(255,255,255,.07);color:var(--white)}
+.nav-item.active{background:var(--blue);color:var(--white)}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:999px}
+.nav-badge.warn{background:var(--warn)}
+.sidebar-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.btn-logout{
+  width:100%;padding:9px;border-radius:var(--radius-sm);
+  background:rgba(239,68,68,.12);color:#fca5a5;
+  border:none;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-logout:hover{background:rgba(239,68,68,.22);color:#fecaca}
 
-    input {
-      width:100%;
-      padding:12px;
-      margin-bottom:15px;
-      border:none;
-      border-radius:8px;
-      outline:none;
-      background:#1e293b;
-      color:white;
-    }
+/* MAIN */
+.main{margin-left:248px;flex:1;min-height:100vh}
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-title{font-size:18px;font-weight:700;color:var(--navy)}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:28px}
 
-    input::placeholder {
-      color:#94a3b8;
-    }
+/* CARDS + KPI */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 22px;position:relative;overflow:hidden;
+}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.blue::before{background:var(--blue-light)}
+.kpi-card.green::before{background:var(--success)}
+.kpi-card.warn::before{background:var(--warn)}
+.kpi-card.danger::before{background:var(--danger)}
+.kpi-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;color:var(--navy);font-family:'IBM Plex Mono',monospace}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:3px}
+.kpi-icon{position:absolute;right:18px;top:18px;font-size:26px;opacity:.12}
 
-    button {
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:8px;
-      background:#22c55e;
-      color:white;
-      font-size:16px;
-      cursor:pointer;
-      transition:0.3s;
-    }
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--radius-sm);
+  font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:600;
+  cursor:pointer;border:none;transition:all .18s;
+}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-primary:hover{background:var(--navy-mid)}
+.btn-success{background:var(--success);color:var(--white)}
+.btn-success:hover{background:#059669}
+.btn-warn{background:var(--warn);color:var(--white)}
+.btn-outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}
+.btn-outline:hover{background:var(--blue);color:var(--white)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-danger{background:var(--danger);color:var(--white)}
+.btn-ghost{background:var(--surface2);color:var(--text)}
+.btn-ghost:hover{background:var(--border)}
+.btn-icon{padding:6px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center}
 
-    button:hover {
-      background:#16a34a;
-    }
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  background:var(--navy);color:var(--white);
+  padding:10px 13px;text-align:left;font-weight:600;font-size:11px;white-space:nowrap;
+}
+thead th:first-child{border-radius:8px 0 0 0}
+thead th:last-child{border-radius:0 8px 0 0}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:#f0f7ff}
+tbody td{padding:9px 13px;color:var(--text)}
+.td-mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
 
-    .error {
-      color:#f87171;
-      margin-top:10px;
-      display:none;
-    }
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-orange{background:#ffedd5;color:#9a3412}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-purple{background:#ede9fe;color:#5b21b6}
+.badge-warn{background:#fef3c7;color:#92400e}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.dot-green{background:var(--success)}.dot-warn{background:var(--warn)}.dot-red{background:var(--danger)}
 
-    .logo {
-      font-size:24px;
-      margin-bottom:10px;
-    }
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(15,31,61,.52);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:780px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.modal-sm{width:460px}
+.modal-header{padding:20px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:10}
+.modal-header h2{font-size:17px;font-weight:700;color:var(--navy)}
+.modal-body{padding:22px 26px}
+.modal-footer{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--white)}
 
-    .subtitle {
-      color:#94a3b8;
-      margin-bottom:20px;
-    }
-  </style>
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.form-section{grid-column:1/-1;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;padding-bottom:5px;border-bottom:1.5px solid var(--border);margin-top:4px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+label{font-size:13px;font-weight:600;color:var(--text)}
+label .req{color:var(--danger);margin-left:2px}
+input,select,textarea{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-family:'Sarabun',sans-serif;font-size:13.5px;color:var(--text);background:var(--white);transition:border .2s,box-shadow .2s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-light);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+input.error,select.error{border-color:var(--danger)}
+.form-error{font-size:11px;color:var(--danger);display:none}
+
+/* SEARCH */
+.search-bar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.search-input-wrap{position:relative;flex:1;min-width:180px}
+.search-input-wrap input{width:100%;padding-left:34px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* SUM TABLE */
+.sum-table{border-collapse:collapse;width:100%;font-size:13px}
+.sum-table th{background:var(--navy);color:var(--white);padding:9px 13px;text-align:center;font-size:11px}
+.sum-table td{padding:8px 13px;border-bottom:1px solid var(--border)}
+.sum-table td.num{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px}
+.sum-table tr.total-row{background:#eff6ff;font-weight:700}
+.sum-table tr:hover{background:#f0f7ff}
+
+/* BAR CHART */
+.bar-chart{display:flex;flex-direction:column;gap:7px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.bar-label{width:88px;text-align:right;color:var(--text-muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:20px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s ease;display:flex;align-items:center;padding-left:7px}
+.bar-fill span{font-size:10px;font-weight:700;color:white;white-space:nowrap}
+
+/* IMPORT ZONE */
+.drop-zone{
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:40px 20px;text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--surface2);
+}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--blue-light);background:#eff6ff}
+.drop-zone .dz-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.drop-zone p{font-size:14px;color:var(--text-muted)}
+.drop-zone small{font-size:12px;color:var(--text-muted)}
+.import-preview{margin-top:16px;max-height:260px;overflow-y:auto}
+.import-col-map{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.col-map-row{display:flex;align-items:center;gap:6px;font-size:12px}
+.col-map-row label{width:120px;font-weight:600;flex-shrink:0}
+.col-map-row select{flex:1;font-size:12px;padding:4px 8px}
+
+/* LOG TABLE */
+.log-action{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600}
+.log-action.CREATE{background:#d1fae5;color:#065f46}
+.log-action.UPDATE{background:#dbeafe;color:#1e40af}
+.log-action.DELETE{background:#fee2e2;color:#991b1b}
+.log-action.LOGIN{background:#fef3c7;color:#92400e}
+.log-action.IMPORT{background:#ede9fe;color:#5b21b6}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast{background:var(--navy);color:var(--white);padding:11px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);animation:toastIn .22s ease;display:flex;align-items:center;gap:7px}
+@keyframes toastIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.warn{border-left:3px solid var(--warn)}
+
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:52px 24px;color:var(--text-muted)}
+.empty-state .empty-icon{font-size:44px;margin-bottom:10px;opacity:.4}
+
+/* UTILS */
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.gap-2{gap:8px}.gap-3{gap:12px}.mb-4{margin-bottom:16px}.mb-5{margin-bottom:20px}
+.font-bold{font-weight:700}.text-muted{color:var(--text-muted)}.text-right{text-align:right}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+.loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,.65);display:flex;align-items:center;justify-content:center;border-radius:var(--radius);z-index:5}
+.relative{position:relative}
+</style>
 </head>
-
 <body>
 
-<div class="login-box">
-  <div class="logo">🚗 Insurance</div>
-  <div class="subtitle">ระบบจัดการประกันภัย</div>
-
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-
-  <button onclick="login()">Sign in</button>
-
-  <div id="error" class="error">Login failed</div>
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen" style="display:flex;min-height:100vh;background:linear-gradient(135deg,#0f1f3d 0%,#1a3561 50%,#1e3a8a 100%);align-items:center;justify-content:center">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🚗</div>
+      <h1>ระบบจัดการประกันภัยรถยนต์</h1>
+      <p>Insurance Management System v2.0</p>
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="กรอก username" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="กรอก password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:4px;justify-content:center" onclick="doLogin()" id="login-btn">
+        🔐 เข้าสู่ระบบ
+      </button>
+    </div>
+    <div class="login-hint">
+      <strong>บัญชีทดสอบ:</strong><br>
+      👤 admin / admin1234 (ผู้ดูแลระบบ)<br>
+      👤 user1 / user1234 (ผู้ใช้งานทั่วไป)
+    </div>
+  </div>
 </div>
 
-<script>
-async function login() {
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+<!-- ══ MAIN APP ══ -->
+<div id="app" style="display:none">
+<div class="layout">
 
-  const res = await fetch('/api/auth/login', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({username,password})
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-wrap">
+      <div class="logo-icon">🚗</div>
+      <div><h1>ประกันภัยรถยนต์</h1><p>Insurance System</p></div>
+    </div>
+  </div>
+  <div class="user-badge">
+    <div class="user-avatar" id="user-avatar">A</div>
+    <div class="user-info">
+      <div class="user-name" id="user-fullname">—</div>
+      <div class="user-role" id="user-role-label">—</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">หลัก</div>
+    <button class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="navigate('records')"><span class="nav-icon">📋</span> ข้อมูลประกันรถ <span class="nav-badge" id="nb-total">0</span></button>
+    <div class="nav-section" style="margin-top:8px">รายงาน</div>
+    <button class="nav-item" onclick="navigate('monthly')"><span class="nav-icon">📅</span> สรุปรายเดือน</button>
+    <button class="nav-item" onclick="navigate('yearly')"><span class="nav-icon">📈</span> สรุปรายปี</button>
+    <button class="nav-item" onclick="navigate('expiring')"><span class="nav-icon">⏰</span> ใกล้หมดอายุ <span class="nav-badge warn" id="nb-expiring">0</span></button>
+    <div class="nav-section admin-only" style="margin-top:8px">จัดการระบบ</div>
+    <button class="nav-item admin-only" onclick="navigate('users')"><span class="nav-icon">👥</span> จัดการผู้ใช้</button>
+    <button class="nav-item admin-only" onclick="navigate('logs')"><span class="nav-icon">📜</span> Activity Log</button>
+  </nav>
+  <div class="sidebar-foot">
+    <button class="btn-logout" onclick="doLogout()">🚪 ออกจากระบบ</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div id="loading-indicator" style="display:none"><div class="spinner" style="border-color:rgba(30,80,162,.2);border-top-color:var(--blue)"></div></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-success" onclick="openAddModal()">➕ เพิ่มข้อมูลประกัน</button>
+      <button class="btn btn-outline" onclick="openImportModal()">📤 นำเข้า Excel</button>
+      <button class="btn btn-ghost" onclick="exportExcel()">📥 Export Excel</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi-card blue"><div class="kpi-label">กรมธรรม์ทั้งหมด</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">รายการในระบบ</div><div class="kpi-icon">📋</div></div>
+        <div class="kpi-card green"><div class="kpi-label">ยอดเบี้ยรวม (บาท)</div><div class="kpi-value" id="kpi-premium">—</div><div class="kpi-sub">ทั้งหมด</div><div class="kpi-icon">💰</div></div>
+        <div class="kpi-card warn"><div class="kpi-label">ใกล้หมดอายุ (30 วัน)</div><div class="kpi-value" id="kpi-expiring">—</div><div class="kpi-sub">รายการ</div><div class="kpi-icon">⏰</div></div>
+        <div class="kpi-card danger"><div class="kpi-label">หมดอายุแล้ว</div><div class="kpi-value" id="kpi-expired">—</div><div class="kpi-sub">รายการ</div><div class="kpi-icon">❌</div></div>
+      </div>
+      <div class="grid-2 mb-5">
+        <div class="card"><div class="font-bold mb-4" style="font-size:14px">สัดส่วนตามประเภทประกัน</div><div class="bar-chart" id="type-chart"></div></div>
+        <div class="card"><div class="font-bold mb-4" style="font-size:14px">ยอดตามบริษัทประกัน</div><div class="bar-chart" id="company-chart"></div></div>
+      </div>
+      <div class="card">
+        <div class="font-bold mb-4" style="font-size:14px">⏰ ใกล้หมดอายุภายใน 60 วัน</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>ทะเบียนรถ</th><th>ยี่ห้อ/รุ่น</th><th>บริษัทประกัน</th><th>ประเภท</th><th>วันหมดอายุ</th><th>เหลืออีก</th></tr></thead>
+          <tbody id="dash-expiring-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECORDS -->
+    <div class="page" id="page-records">
+      <div class="card">
+        <div class="search-bar">
+          <div class="search-input-wrap"><span class="search-icon">🔍</span><input type="text" id="search-q" placeholder="ค้นหาทะเบียน, บริษัท, ยี่ห้อ..." oninput="loadRecords()"></div>
+          <select id="f-type" onchange="loadRecords()" style="width:120px">
+            <option value="">ทุกประเภท</option>
+            <option>ชั้น 1</option><option>ชั้น 2+</option><option>ชั้น 3+</option><option>ชั้น 3</option><option>พ.ร.บ.</option>
+          </select>
+          <select id="f-status" onchange="loadRecords()" style="width:130px">
+            <option value="">ทุกสถานะ</option>
+            <option value="active">ใช้งานได้</option>
+            <option value="expiring">ใกล้หมดอายุ</option>
+            <option value="expired">หมดอายุ</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>ทะเบียนรถ</th><th>ยี่ห้อ/รุ่น</th><th>บริษัทประกัน</th><th>ประเภท</th><th>เบี้ย (บาท)</th><th>วันชำระ</th><th>วันหมดอายุ</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+            <tbody id="records-tbody"></tbody>
+          </table>
+        </div>
+        <div id="records-empty" class="empty-state" style="display:none"><div class="empty-icon">📭</div><p>ไม่พบข้อมูล</p></div>
+        <div id="records-count" style="font-size:12px;color:var(--text-muted);margin-top:8px;text-align:right"></div>
+      </div>
+    </div>
+
+    <!-- MONTHLY -->
+    <div class="page" id="page-monthly">
+      <div class="card mb-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="font-bold" style="font-size:14px">เลือกปี:</div>
+          <select id="monthly-year" onchange="loadMonthly()" style="width:130px"></select>
+        </div>
+        <div class="table-wrap"><table class="sum-table">
+          <thead><tr><th>เดือน</th><th>ชั้น 1</th><th>ชั้น 2+</th><th>ชั้น 3+</th><th>ชั้น 3</th><th>พ.ร.บ.</th><th>รวม (บาท)</th><th>จำนวน</th></tr></thead>
+          <tbody id="monthly-tbody"></tbody>
+        </table></div>
+      </div>
+      <div class="card"><div class="font-bold mb-4" style="font-size:14px">กราฟเบี้ยรายเดือน</div><div class="bar-chart" id="monthly-chart"></div></div>
+    </div>
+
+    <!-- YEARLY -->
+    <div class="page" id="page-yearly">
+      <div class="card">
+        <div class="font-bold mb-4" style="font-size:14px">สรุปรายปี (ทุกปีในระบบ)</div>
+        <div class="table-wrap"><table class="sum-table">
+          <thead><tr><th>ปี (พ.ศ.)</th><th>ชั้น 1</th><th>ชั้น 2+</th><th>ชั้น 3+</th><th>ชั้น 3</th><th>พ.ร.บ.</th><th>รวม (บาท)</th><th>จำนวน</th></tr></thead>
+          <tbody id="yearly-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- EXPIRING -->
+    <div class="page" id="page-expiring">
+      <div class="card">
+        <div class="font-bold mb-4" style="font-size:14px">⏰ ใกล้หมดอายุ / หมดอายุแล้ว</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ทะเบียนรถ</th><th>ยี่ห้อ/รุ่น</th><th>บริษัทประกัน</th><th>ประเภท</th><th>วันหมดอายุ</th><th>สถานะเวลา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+          <tbody id="expiring-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- USERS (admin) -->
+    <div class="page" id="page-users">
+      <div class="card mb-4 flex items-center justify-between">
+        <div class="font-bold" style="font-size:14px">👥 จัดการผู้ใช้งาน</div>
+        <button class="btn btn-primary btn-sm" onclick="openUserModal()">➕ เพิ่มผู้ใช้</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Username</th><th>ชื่อ-นามสกุล</th><th>บทบาท</th><th>วันที่สร้าง</th><th>จัดการ</th></tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- LOGS (admin) -->
+    <div class="page" id="page-logs">
+      <div class="card">
+        <div class="font-bold mb-4" style="font-size:14px">📜 Activity Log (100 รายการล่าสุด)</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>Action</th><th>รายละเอียด</th></tr></thead>
+          <tbody id="logs-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+</div>
+
+<!-- ══ MODAL: ADD/EDIT ══ -->
+<div class="overlay" id="modal-rec">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-rec-title">เพิ่มข้อมูลประกัน</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-rec')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="f-id">
+      <div class="form-grid">
+        <div class="form-section">ข้อมูลบริษัทประกันภัย</div>
+        <div class="form-group">
+          <label>บริษัทประกัน <span class="req">*</span></label>
+          <input type="text" id="f-company" list="dl-company" placeholder="เช่น วิริยะประกันภัย">
+          <datalist id="dl-company"><option>วิริยะประกันภัย</option><option>เมืองไทยประกันภัย</option><option>ทิพยประกันภัย</option><option>คุ้มภัยประกันภัย</option><option>อลิอันซ์ประกันภัย</option><option>กรุงเทพประกันภัย</option><option>สินมั่นคงประกันภัย</option><option>เอซีเอประกันภัย</option></datalist>
+          <span class="form-error" id="e-company">กรุณาระบุบริษัทประกัน</span>
+        </div>
+        <div class="form-group">
+          <label>ประเภทประกัน <span class="req">*</span></label>
+          <select id="f-type-modal"><option value="">-- เลือก --</option><option>ชั้น 1</option><option>ชั้น 2+</option><option>ชั้น 3+</option><option>ชั้น 3</option><option>พ.ร.บ.</option></select>
+          <span class="form-error" id="e-type">กรุณาเลือกประเภท</span>
+        </div>
+        <div class="form-group">
+          <label>วันที่เริ่มคุ้มครอง <span class="req">*</span></label>
+          <input type="date" id="f-start">
+          <span class="form-error" id="e-start">กรุณาระบุวันที่เริ่ม</span>
+        </div>
+        <div class="form-group">
+          <label>วันที่สิ้นสุด <span class="req">*</span></label>
+          <input type="date" id="f-end">
+          <span class="form-error" id="e-end">กรุณาระบุวันที่สิ้นสุด</span>
+        </div>
+        <div class="form-group">
+          <label>เบี้ยประกัน (บาท) <span class="req">*</span></label>
+          <input type="number" id="f-premium" min="0" placeholder="0">
+          <span class="form-error" id="e-premium">กรุณาระบุเบี้ยประกัน</span>
+        </div>
+        <div class="form-group">
+          <label>วันที่ชำระ</label>
+          <input type="date" id="f-paydate">
+        </div>
+        <div class="form-group full">
+          <label>หมายเหตุ</label>
+          <input type="text" id="f-note" placeholder="เลขกรมธรรม์ หรือข้อมูลเพิ่มเติม">
+        </div>
+        <div class="form-section">ข้อมูลรถยนต์</div>
+        <div class="form-group">
+          <label>ทะเบียนรถ <span class="req">*</span></label>
+          <input type="text" id="f-plate" placeholder="เช่น กข 1234 กทม">
+          <span class="form-error" id="e-plate">กรุณาระบุทะเบียนรถ</span>
+        </div>
+        <div class="form-group">
+          <label>ยี่ห้อ/รุ่นรถ</label>
+          <input type="text" id="f-carmodel" placeholder="เช่น Toyota Camry 2022">
+        </div>
+        <div class="form-group">
+          <label>ผู้ถือกรรมสิทธิ์</label>
+          <input type="text" id="f-owner" placeholder="ชื่อเจ้าของรถ">
+        </div>
+        <div class="form-group">
+          <label>ครบกำหนดภาษี</label>
+          <input type="date" id="f-taxdue">
+        </div>
+        <div class="form-section">แผนก / สาขา</div>
+        <div class="form-group">
+          <label>แผนกที่เบิกงบ</label>
+          <input type="text" id="f-deptbudget" list="dl-dept" placeholder="ฝ่ายบริหาร">
+          <datalist id="dl-dept"><option>ฝ่ายบริหาร</option><option>ฝ่ายขาย</option><option>ฝ่ายบัญชี</option><option>ฝ่ายปฏิบัติการ</option><option>ฝ่าย HR</option><option>ฝ่ายผู้บริหาร</option></datalist>
+        </div>
+        <div class="form-group">
+          <label>แผนกที่ใช้งาน</label>
+          <input type="text" id="f-deptuse" list="dl-dept" placeholder="ฝ่ายขาย">
+        </div>
+        <div class="form-group full">
+          <label>สาขาที่ใช้งาน</label>
+          <input type="text" id="f-branch" list="dl-branch" placeholder="สำนักงานใหญ่">
+          <datalist id="dl-branch"><option>สำนักงานใหญ่</option><option>สาขากรุงเทพ</option><option>สาขาเชียงใหม่</option><option>สาขาขอนแก่น</option><option>สาขาภูเก็ต</option><option>สาขาหาดใหญ่</option></datalist>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-rec')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveRecord()" id="save-btn">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: IMPORT ══ -->
+<div class="overlay" id="modal-import">
+  <div class="modal" style="width:660px">
+    <div class="modal-header">
+      <h2>📤 นำเข้าข้อมูลจาก Excel (.xlsx)</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-import')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Step 1: upload -->
+      <div id="import-step1">
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('xlsx-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <div class="dz-icon">📂</div>
+          <p>คลิกหรือลากไฟล์ .xlsx มาวางที่นี่</p>
+          <small>รองรับไฟล์ Excel (.xlsx, .xls)</small>
+        </div>
+        <input type="file" id="xlsx-input" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(this)">
+        <div id="import-status" style="margin-top:12px;font-size:13px;color:var(--text-muted);text-align:center"></div>
+      </div>
+      <!-- Step 2: map columns -->
+      <div id="import-step2" style="display:none">
+        <div class="flex items-center justify-between mb-4">
+          <div class="font-bold" style="font-size:13px">🗂️ จับคู่คอลัมน์ข้อมูล</div>
+          <button class="btn btn-ghost btn-sm" onclick="resetImport()">↩ เลือกไฟล์ใหม่</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">พบ <strong id="import-rows-count">0</strong> แถว | <strong id="import-cols-count">0</strong> คอลัมน์</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="col-mapping"></div>
+        <div class="import-preview">
+          <div class="font-bold" style="font-size:12px;margin:14px 0 6px;color:var(--text-muted)">ตัวอย่างข้อมูล (5 แถวแรก)</div>
+          <div style="overflow-x:auto;font-size:11px" id="preview-table"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-import')">ยกเลิก</button>
+      <button class="btn btn-primary" id="import-btn" onclick="doImport()" style="display:none">📤 นำเข้าข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: USER ══ -->
+<div class="overlay" id="modal-user">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h2 id="modal-user-title">เพิ่มผู้ใช้</h2><button class="btn btn-ghost btn-sm" onclick="closeModal('modal-user')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Username <span class="req">*</span></label><input type="text" id="u-username"></div>
+        <div class="form-group"><label>Password <span class="req">*</span></label><input type="password" id="u-password" placeholder="รหัสผ่าน"></div>
+        <div class="form-group full"><label>ชื่อ-นามสกุล</label><input type="text" id="u-fullname"></div>
+        <div class="form-group full"><label>บทบาท</label><select id="u-role"><option value="user">ผู้ใช้งานทั่วไป</option><option value="admin">ผู้ดูแลระบบ</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-user')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveUser()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CONFIRM ══ -->
+<div class="overlay" id="modal-confirm">
+  <div class="modal modal-sm">
+    <div class="modal-body" style="padding:36px;text-align:center">
+      <div style="font-size:40px;margin-bottom:10px" id="confirm-icon">🗑️</div>
+      <h3 style="font-size:16px;margin-bottom:8px" id="confirm-title">ยืนยันการลบ</h3>
+      <p style="font-size:13px;color:var(--text-muted)" id="confirm-msg"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">ยกเลิก</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ══════════════════════════════════════
+// CONFIG & STATE
+// ══════════════════════════════════════
+const API = '';  // same origin (works on Railway, Render, VPS, localhost)
+let token = localStorage.getItem('ins_token');
+let currentUser = null;
+let xlsxData = null;
+let xlsxHeaders = [];
+
+let _loadCount = 0;
+
+// ══════════════════════════════════════
+// API HELPER
+// ══════════════════════════════════════
+async function api(method, path, body) {
+  _loadCount++;
+  showLoading(true);
+  try {
+    const res = await fetch(API + '/api' + path, {
+      method,
+      headers: { 'Content-Type':'application/json', ...(token?{'Authorization':'Bearer '+token}:{}) },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    // Handle non-JSON or empty response
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : {}; }
+    catch { data = { error: `Server error (${res.status})` }; }
+
+    if (res.status === 401) {
+      // Token expired → force logout
+      token = null; localStorage.removeItem('ins_token');
+      doLogout();
+      throw new Error('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+    }
+    if (!res.ok) throw new Error(data.error || `เกิดข้อผิดพลาด (${res.status})`);
+    return data;
+  } catch(err) {
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      throw new Error('ไม่สามารถเชื่อมต่อ Server ได้ กรุณาตรวจสอบการเชื่อมต่อ');
+    }
+    throw err;
+  } finally {
+    _loadCount--;
+    if (_loadCount <= 0) { _loadCount=0; showLoading(false); }
+  }
+}
+
+function showLoading(v) {
+  document.getElementById('loading-indicator').style.display = v ? '' : 'none';
+}
+
+// ══════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  err.style.display='none';
+  if (!username||!password) { err.textContent='กรุณากรอก Username และ Password'; err.style.display=''; return; }
+  btn.innerHTML='<div class="spinner"></div> กำลังเข้าสู่ระบบ...';
+  btn.disabled=true;
+  try {
+    const data = await api('POST','/auth/login',{username,password});
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('ins_token', token);
+    initApp();
+  } catch(e) {
+    err.textContent = e.message;
+    err.style.display='';
+    btn.innerHTML='🔐 เข้าสู่ระบบ';
+    btn.disabled=false;
+  }
+}
+
+function doLogout() {
+  token = null; currentUser = null;
+  localStorage.removeItem('ins_token');
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+}
+
+async function initApp() {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='';
+  document.getElementById('user-fullname').textContent = currentUser.fullName || currentUser.username;
+  document.getElementById('user-role-label').textContent = currentUser.role==='admin'?'ผู้ดูแลระบบ':'ผู้ใช้งาน';
+  const nameChar = (currentUser.fullName||currentUser.username||'?')[0];
+  document.getElementById('user-avatar').textContent = nameChar.toUpperCase();
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = currentUser.role==='admin' ? '' : 'none';
+  });
+  populateYearSelect();
+  try { await navigate('dashboard'); } catch(e) { console.error('Dashboard load error:', e); }
+}
+
+// Auto-login if token exists
+async function tryAutoLogin() {
+  // Always show login screen first as fallback
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+
+  if (!token) return;
+  try {
+    currentUser = await api('GET','/auth/me');
+    await initApp();
+  } catch {
+    token=null;
+    localStorage.removeItem('ins_token');
+    // Login screen already visible — nothing more needed
+  }
+}
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+const titles = {dashboard:'Dashboard',records:'ข้อมูลประกันรถ',monthly:'สรุปรายเดือน',yearly:'สรุปรายปี',expiring:'ใกล้หมดอายุ',users:'จัดการผู้ใช้',logs:'Activity Log'};
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pageEl = document.getElementById(`page-${page}`);
+  if (!pageEl) return;
+  pageEl.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes(`'${page}'`))n.classList.add('active')});
+  document.getElementById('page-title').textContent = titles[page]||page;
+  const loaders = {dashboard:loadDashboard,records:loadRecords,monthly:loadMonthly,yearly:loadYearly,expiring:loadExpiring,users:loadUsers,logs:loadLogs};
+  const fn = loaders[page];
+  if (fn) fn().catch(err => showPageError(page, err));
+}
+
+function showPageError(page, err) {
+  showLoading(false);
+  const pageEl = document.getElementById(`page-${page}`);
+  if (!pageEl) return;
+  // Don't overwrite if already has content
+  const existing = pageEl.querySelector('.card,.kpi-grid');
+  if (existing && existing.textContent.trim()) return;
+  pageEl.innerHTML = `
+    <div style="text-align:center;padding:80px 24px">
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <h3 style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px">ไม่สามารถโหลดข้อมูลได้</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">${err.message||'เกิดข้อผิดพลาด กรุณาลองใหม่'}</p>
+      <button class="btn btn-primary" onclick="navigate('${page}')">🔄 ลองใหม่</button>
+    </div>`;
+}
+
+// ══════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════
+async function loadDashboard() {
+  // Reset KPIs to loading state
+  ['kpi-total','kpi-premium','kpi-expiring','kpi-expired'].forEach(id=>{
+    document.getElementById(id).textContent='...';
   });
 
-  const data = await res.json();
+  const [dash, allRecs] = await Promise.all([
+    api('GET','/summary/dashboard'),
+    api('GET','/records')
+  ]);
 
-  if(!res.ok){
-    document.getElementById('error').style.display='block';
-    return;
-  }
+  document.getElementById('kpi-total').textContent = (dash.total||0).toLocaleString();
+  document.getElementById('kpi-premium').textContent = Math.round(dash.totalPremium||0).toLocaleString();
+  document.getElementById('kpi-expiring').textContent = dash.expiring||0;
+  document.getElementById('kpi-expired').textContent = dash.expired||0;
+  document.getElementById('nb-total').textContent = dash.total||0;
+  document.getElementById('nb-expiring').textContent = (dash.expiring||0) + (dash.expired||0);
+  const types = ['ชั้น 1','ชั้น 2+','ชั้น 3+','ชั้น 3','พ.ร.บ.'];
+  const colors = ['#3b82f6','#8b5cf6','#10b981','#f97316','#f59e0b'];
+  const typeChart = document.getElementById('type-chart');
+  const maxT = Math.max(...types.map(t=>allRecs.filter(r=>r.type===t).reduce((s,r)=>s+r.premium,0)),1);
+  typeChart.innerHTML = types.map((t,i)=>{
+    const s=allRecs.filter(r=>r.type===t).reduce((a,r)=>a+r.premium,0);
+    return `<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(s/maxT*100)}%;background:${colors[i]}">${s>0?`<span>${Math.round(s).toLocaleString()}</span>`:''}</div></div></div>`;
+  }).join('');
 
-  localStorage.setItem('ins_token', data.token);
-  location.href = '/dashboard.html';
+  const companies = [...new Set(allRecs.map(r=>r.company))].slice(0,6);
+  const compChart = document.getElementById('company-chart');
+  const maxC = Math.max(...companies.map(c=>allRecs.filter(r=>r.company===c).reduce((s,r)=>s+r.premium,0)),1);
+  const ccolors=['#1e50a2','#0ea5e9','#06b6d4','#14b8a6','#10b981','#84cc16'];
+  compChart.innerHTML = companies.map((c,i)=>{
+    const s=allRecs.filter(r=>r.company===c).reduce((a,r)=>a+r.premium,0);
+    const label=c.replace('ประกันภัย','').replace('ประกันชีวิต','');
+    return `<div class="bar-row"><div class="bar-label">${label}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(s/maxC*100)}%;background:${ccolors[i%6]}">${s>0?`<span>${Math.round(s).toLocaleString()}</span>`:''}</div></div></div>`;
+  }).join('');
+
+  // Expiring soon table
+  const soon = allRecs.filter(r=>{const d=daysUntil(r.end_date);return d!==null&&d<=60&&d>=-30;}).sort((a,b)=>new Date(a.end_date)-new Date(b.end_date));
+  const tbody = document.getElementById('dash-expiring-tbody');
+  tbody.innerHTML = soon.length ? soon.map(r=>{
+    const d=daysUntil(r.end_date);
+    return `<tr><td class="td-mono font-bold">${r.plate}</td><td>${r.car_model||'—'}</td><td>${r.company}</td><td>${typeBadge(r.type)}</td><td>${fmtDate(r.end_date)}</td><td style="font-weight:700;color:${d<0?'var(--danger)':'var(--warn)'}">${d<0?`เกิน ${Math.abs(d)} วัน`:`อีก ${d} วัน`}</td></tr>`;
+  }).join('') : `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">✅ ไม่มีรายการใกล้หมดอายุ</td></tr>`;
 }
-</script>
 
+// ══════════════════════════════════════
+// RECORDS
+// ══════════════════════════════════════
+async function loadRecords() {
+  const q = document.getElementById('search-q')?.value||'';
+  const type = document.getElementById('f-type')?.value||'';
+  const status = document.getElementById('f-status')?.value||'';
+  let url = '/records?';
+  if (q) url+=`search=${encodeURIComponent(q)}&`;
+  if (type) url+=`type=${encodeURIComponent(type)}&`;
+  if (status) url+=`status=${status}`;
+  let rows;
+  try { rows = await api('GET', url); }
+  catch(e) { toast('โหลดข้อมูลไม่ได้: '+e.message,'error'); return; }
+  const tbody = document.getElementById('records-tbody');
+  const empty = document.getElementById('records-empty');
+  const count = document.getElementById('records-count');
+  if (!rows.length) { tbody.innerHTML=''; empty.style.display=''; count.textContent=''; return; }
+  empty.style.display='none';
+  count.textContent=`แสดง ${rows.length} รายการ`;
+  tbody.innerHTML = rows.map((r,i)=>`<tr>
+    <td style="color:var(--text-muted);font-size:11px">${i+1}</td>
+    <td class="td-mono font-bold">${r.plate}</td><td>${r.car_model||'—'}</td><td>${r.company}</td>
+    <td>${typeBadge(r.type)}</td>
+    <td class="text-right td-mono">${Math.round(r.premium||0).toLocaleString()}</td>
+    <td>${fmtDate(r.pay_date)}</td><td>${fmtDate(r.end_date)}</td>
+    <td>${statusBadge(r.end_date)}</td>
+    <td><div class="flex gap-2">
+      <button class="btn btn-sm btn-outline btn-icon" onclick="openEditModal(${r.id})" title="แก้ไข">✏️</button>
+      <button class="btn btn-sm btn-danger btn-icon" onclick="confirmAction('ลบข้อมูล','ต้องการลบทะเบียน ${r.plate} ใช่หรือไม่?',()=>deleteRecord(${r.id}))" title="ลบ">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+async function deleteRecord(id) {
+  await api('DELETE',`/records/${id}`);
+  toast('🗑️ ลบข้อมูลเรียบร้อย','warn');
+  loadRecords(); loadDashboard();
+}
+
+// ══════════════════════════════════════
+// SAVE RECORD
+// ══════════════════════════════════════
+function clearErrors() {
+  document.querySelectorAll('.form-error').forEach(e=>e.style.display='none');
+  document.querySelectorAll('input.error,select.error').forEach(e=>e.classList.remove('error'));
+}
+
+async function saveRecord() {
+  clearErrors();
+  let ok = true;
+  [['f-company','e-company'],['f-type-modal','e-type'],['f-start','e-start'],['f-end','e-end'],['f-premium','e-premium'],['f-plate','e-plate']].forEach(([fid,eid])=>{
+    const el=document.getElementById(fid);
+    if(!el.value.trim()){el.classList.add('error');document.getElementById(eid).style.display='';ok=false;}
+  });
+  if(!ok){toast('กรุณากรอกข้อมูลที่จำเป็น','error');return;}
+  const id = document.getElementById('f-id').value;
+  const body = {
+    company:document.getElementById('f-company').value.trim(),
+    type:document.getElementById('f-type-modal').value,
+    plate:document.getElementById('f-plate').value.trim(),
+    start_date:document.getElementById('f-start').value,
+    end_date:document.getElementById('f-end').value,
+    premium:document.getElementById('f-premium').value,
+    pay_date:document.getElementById('f-paydate').value||null,
+    note:document.getElementById('f-note').value.trim(),
+    car_model:document.getElementById('f-carmodel').value.trim(),
+    owner:document.getElementById('f-owner').value.trim(),
+    tax_due:document.getElementById('f-taxdue').value||null,
+    dept_budget:document.getElementById('f-deptbudget').value.trim(),
+    dept_use:document.getElementById('f-deptuse').value.trim(),
+    branch:document.getElementById('f-branch').value.trim(),
+  };
+  try {
+    if (id) { await api('PUT',`/records/${id}`,body); toast('✅ อัปเดตเรียบร้อย','success'); }
+    else    { await api('POST','/records',body); toast('✅ เพิ่มข้อมูลเรียบร้อย','success'); }
+    closeModal('modal-rec');
+    loadRecords(); loadDashboard();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ══════════════════════════════════════
+// OPEN MODALS
+// ══════════════════════════════════════
+function openAddModal() {
+  document.getElementById('modal-rec-title').textContent='➕ เพิ่มข้อมูลประกัน';
+  document.getElementById('f-id').value='';
+  document.getElementById('modal-rec').querySelector('form,div')?.reset?.();
+  ['f-company','f-type-modal','f-start','f-end','f-premium','f-paydate','f-note','f-plate','f-carmodel','f-owner','f-taxdue','f-deptbudget','f-deptuse','f-branch'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  clearErrors();
+  document.getElementById('modal-rec').classList.add('open');
+}
+
+async function openEditModal(id) {
+  // Fetch single record by filtering
+  const allRecs = await api('GET','/records');
+  const r = allRecs.find(x=>x.id===id);
+  if(!r) { toast('ไม่พบข้อมูล','error'); return; }
+  document.getElementById('modal-rec-title').textContent='✏️ แก้ไขข้อมูลประกัน';
+  document.getElementById('f-id').value=r.id;
+  document.getElementById('f-company').value=r.company||'';
+  document.getElementById('f-type-modal').value=r.type||'';
+  document.getElementById('f-start').value=r.start_date||'';
+  document.getElementById('f-end').value=r.end_date||'';
+  document.getElementById('f-premium').value=r.premium||'';
+  document.getElementById('f-paydate').value=r.pay_date||'';
+  document.getElementById('f-note').value=r.note||'';
+  document.getElementById('f-plate').value=r.plate||'';
+  document.getElementById('f-carmodel').value=r.car_model||'';
+  document.getElementById('f-owner').value=r.owner||'';
+  document.getElementById('f-taxdue').value=r.tax_due||'';
+  document.getElementById('f-deptbudget').value=r.dept_budget||'';
+  document.getElementById('f-deptuse').value=r.dept_use||'';
+  document.getElementById('f-branch').value=r.branch||'';
+  clearErrors();
+  document.getElementById('modal-rec').classList.add('open');
+}
+
+// ══════════════════════════════════════
+// XLSX IMPORT
+// ══════════════════════════════════════
+function openImportModal() { resetImport(); document.getElementById('modal-import').classList.add('open'); }
+
+function resetImport() {
+  xlsxData=null; xlsxHeaders=[];
+  document.getElementById('import-step1').style.display='';
+  document.getElementById('import-step2').style.display='none';
+  document.getElementById('import-btn').style.display='none';
+  document.getElementById('import-status').textContent='';
+  document.getElementById('xlsx-input').value='';
+  document.getElementById('drop-zone').classList.remove('drag');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) parseXlsx(file);
+}
+
+function handleFileSelect(input) {
+  if (input.files[0]) parseXlsx(input.files[0]);
+}
+
+function parseXlsx(file) {
+  document.getElementById('import-status').textContent='⏳ กำลังอ่านไฟล์...';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type:'binary', cellDates:true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(ws, { header:1, raw:false, dateNF:'YYYY-MM-DD' });
+      if (!jsonData || jsonData.length < 2) { document.getElementById('import-status').textContent='❌ ไม่พบข้อมูลในไฟล์'; return; }
+      xlsxHeaders = jsonData[0].map(h => String(h||'').trim());
+      xlsxData = jsonData.slice(1).filter(r => r.some(c => c));
+      showImportStep2();
+    } catch(err) { document.getElementById('import-status').textContent='❌ อ่านไฟล์ไม่ได้: '+err.message; }
+  };
+  reader.readAsBinaryString(file);
+}
+
+const fieldDefs = [
+  {key:'company',label:'บริษัทประกัน *'},
+  {key:'type',label:'ประเภทประกัน *'},
+  {key:'plate',label:'ทะเบียนรถ *'},
+  {key:'start_date',label:'วันที่เริ่มคุ้มครอง'},
+  {key:'end_date',label:'วันที่สิ้นสุด'},
+  {key:'premium',label:'เบี้ยประกัน (บาท)'},
+  {key:'pay_date',label:'วันที่ชำระ'},
+  {key:'note',label:'หมายเหตุ'},
+  {key:'car_model',label:'ยี่ห้อ/รุ่นรถ'},
+  {key:'owner',label:'ผู้ถือกรรมสิทธิ์'},
+  {key:'dept_budget',label:'แผนกที่เบิกงบ'},
+  {key:'dept_use',label:'แผนกที่ใช้งาน'},
+  {key:'branch',label:'สาขา'},
+  {key:'tax_due',label:'ครบกำหนดภาษี'},
+];
+
+// Auto-match column headers
+const autoMatch = {
+  company:['บริษัทประกัน','บริษัท','company'],
+  type:['ประเภทประกัน','ประเภท','type','class'],
+  plate:['ทะเบียนรถ','ทะเบียน','plate','license'],
+  start_date:['วันที่เริ่ม','เริ่มคุ้มครอง','start'],
+  end_date:['วันที่สิ้นสุด','สิ้นสุด','end','expire'],
+  premium:['เบี้ยประกัน','เบี้ย','premium','price'],
+  pay_date:['วันที่ชำระ','ชำระ','pay'],
+  note:['หมายเหตุ','note','remark'],
+  car_model:['ยี่ห้อ','รุ่น','car','model'],
+  owner:['ผู้ถือ','เจ้าของ','owner'],
+  dept_budget:['แผนกเบิก','เบิกงบ','dept_budget'],
+  dept_use:['แผนกใช้','ใช้งาน','dept_use'],
+  branch:['สาขา','branch'],
+  tax_due:['ภาษี','tax'],
+};
+
+function showImportStep2() {
+  document.getElementById('import-step1').style.display='none';
+  document.getElementById('import-step2').style.display='';
+  document.getElementById('import-rows-count').textContent = xlsxData.length;
+  document.getElementById('import-cols-count').textContent = xlsxHeaders.length;
+  document.getElementById('import-btn').style.display='';
+
+  const mapDiv = document.getElementById('col-mapping');
+  mapDiv.innerHTML = fieldDefs.map(f=>{
+    const opts = xlsxHeaders.map((h,i)=>`<option value="${i}" ${autoMatchCol(f.key,h)?'selected':''}>${h}</option>`).join('');
+    return `<div class="col-map-row">
+      <label>${f.label}</label>
+      <select id="map-${f.key}" style="flex:1;font-size:12px;padding:4px 8px">
+        <option value="">-- ไม่ใช้ --</option>${opts}
+      </select>
+    </div>`;
+  }).join('');
+
+  // Preview table
+  const preview = xlsxData.slice(0,5);
+  const th = xlsxHeaders.map(h=>`<th style="background:var(--navy);color:white;padding:5px 8px;font-size:10px;white-space:nowrap">${h}</th>`).join('');
+  const rows = preview.map(r=>`<tr>${xlsxHeaders.map((_,i)=>`<td style="padding:4px 8px;border-bottom:1px solid var(--border);font-size:11px;white-space:nowrap">${r[i]||''}</td>`).join('')}</tr>`).join('');
+  document.getElementById('preview-table').innerHTML = `<table style="border-collapse:collapse"><thead><tr>${th}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function autoMatchCol(key, header) {
+  const h = String(header).toLowerCase();
+  return (autoMatch[key]||[]).some(k => h.includes(k.toLowerCase()));
+}
+
+function getColIndex(key) {
+  const v = document.getElementById(`map-${key}`)?.value;
+  return v!==''&&v!=null ? parseInt(v) : null;
+}
+
+function fmtDateFromXlsx(val) {
+  if (!val) return null;
+  const s = String(val).trim();
+  if (!s) return null;
+  // Try parse various formats
+  const d = new Date(s);
+  if (!isNaN(d)) return d.toISOString().split('T')[0];
+  return null;
+}
+
+async function doImport() {
+  const rows = xlsxData.map(r => {
+    const obj = {};
+    fieldDefs.forEach(f=>{
+      const i = getColIndex(f.key);
+      if(i!==null) {
+        let v = r[i];
+        if (f.key.includes('date')||f.key==='tax_due') v = fmtDateFromXlsx(v);
+        else if (f.key==='premium') v = parseFloat(String(v).replace(/,/g,''))||0;
+        obj[f.key] = v!=null ? String(v).trim() : '';
+      }
+    });
+    return obj;
+  }).filter(r=>r.company&&r.type&&r.plate);
+
+  if (!rows.length) { toast('ไม่พบข้อมูลที่จำเป็น (บริษัท/ประเภท/ทะเบียน)','error'); return; }
+  try {
+    const res = await api('POST','/records/import',{rows});
+    toast(`✅ นำเข้าสำเร็จ ${res.ok} รายการ${res.fail?` (ล้มเหลว ${res.fail})`:''}`,'success');
+    closeModal('modal-import');
+    loadRecords(); loadDashboard();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ══════════════════════════════════════
+// MONTHLY
+// ══════════════════════════════════════
+function populateYearSelect() {
+  const sel = document.getElementById('monthly-year');
+  if (!sel) return;
+  const curr = new Date().getFullYear();
+  let opts = '';
+  for (let y=curr-2;y<=curr+2;y++) opts+=`<option value="${y}" ${y===curr?'selected':''}>${y+543} (${y})</option>`;
+  sel.innerHTML = opts;
+}
+
+async function loadMonthly() {
+  const year = document.getElementById('monthly-year')?.value || new Date().getFullYear();
+  const data = await api('GET',`/summary/monthly?year=${year}`);
+  const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const types = ['ชั้น 1','ชั้น 2+','ชั้น 3+','ชั้น 3','พ.ร.บ.'];
+  const totals = {}; types.forEach(t=>totals[t]=0); totals.total=0; totals.count=0;
+  const chartData = [];
+  const rows = months.map((m,mi)=>{
+    const padMon = String(mi+1).padStart(2,'0');
+    const sum = {}; let rowTotal=0,rowCount=0; types.forEach(t=>sum[t]=0);
+    data.filter(d=>d.month===padMon).forEach(d=>{if(sum[d.type]!==undefined){sum[d.type]+=d.total;rowTotal+=d.total;rowCount+=d.cnt;}});
+    types.forEach(t=>{totals[t]+=sum[t];}); totals.total+=rowTotal; totals.count+=rowCount;
+    chartData.push({month:m.slice(0,3),total:rowTotal});
+    return `<tr><td>${m}</td>${types.map(t=>`<td class="num">${sum[t]?Math.round(sum[t]).toLocaleString():'—'}</td>`).join('')}<td class="num font-bold">${rowTotal?Math.round(rowTotal).toLocaleString():'—'}</td><td class="num">${rowCount||'—'}</td></tr>`;
+  });
+  rows.push(`<tr class="total-row"><td>รวมทั้งปี</td>${types.map(t=>`<td class="num">${Math.round(totals[t]).toLocaleString()}</td>`).join('')}<td class="num">${Math.round(totals.total).toLocaleString()}</td><td class="num">${totals.count}</td></tr>`);
+  document.getElementById('monthly-tbody').innerHTML = rows.join('');
+  const maxV = Math.max(...chartData.map(d=>d.total),1);
+  document.getElementById('monthly-chart').innerHTML = chartData.map(d=>`<div class="bar-row"><div class="bar-label">${d.month}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.total/maxV*100)}%;background:var(--blue)">${d.total?`<span>${Math.round(d.total).toLocaleString()}</span>`:''}</div></div></div>`).join('');
+}
+
+// ══════════════════════════════════════
+// YEARLY
+// ══════════════════════════════════════
+async function loadYearly() {
+  const data = await api('GET','/summary/yearly');
+  const years = [...new Set(data.map(d=>d.year))].sort();
+  const types = ['ชั้น 1','ชั้น 2+','ชั้น 3+','ชั้น 3','พ.ร.บ.'];
+  const tbody = document.getElementById('yearly-tbody');
+  if (!years.length) { tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted)">ยังไม่มีข้อมูล</td></tr>`; return; }
+  let gT={}; types.forEach(t=>gT[t]=0); gT.total=0; gT.count=0;
+  const rows = years.map(y=>{
+    const sum={}; let rowTotal=0,rowCount=0; types.forEach(t=>sum[t]=0);
+    data.filter(d=>d.year===y).forEach(d=>{if(sum[d.type]!==undefined){sum[d.type]+=d.total;rowTotal+=d.total;rowCount+=d.cnt;}});
+    types.forEach(t=>gT[t]+=sum[t]); gT.total+=rowTotal; gT.count+=rowCount;
+    return `<tr><td style="text-align:center;font-weight:700">${parseInt(y)+543}</td>${types.map(t=>`<td class="num">${sum[t]?Math.round(sum[t]).toLocaleString():'—'}</td>`).join('')}<td class="num font-bold">${Math.round(rowTotal).toLocaleString()}</td><td class="num">${rowCount}</td></tr>`;
+  });
+  rows.push(`<tr class="total-row"><td style="text-align:center">รวม</td>${types.map(t=>`<td class="num">${Math.round(gT[t]).toLocaleString()}</td>`).join('')}<td class="num">${Math.round(gT.total).toLocaleString()}</td><td class="num">${gT.count}</td></tr>`);
+  tbody.innerHTML = rows.join('');
+}
+
+// ══════════════════════════════════════
+// EXPIRING
+// ══════════════════════════════════════
+async function loadExpiring() {
+  const recs = await api('GET','/records');
+  const soon = recs.filter(r=>{const d=daysUntil(r.end_date);return d!==null&&d<=60;}).sort((a,b)=>new Date(a.end_date)-new Date(b.end_date));
+  document.getElementById('expiring-tbody').innerHTML = soon.length ? soon.map(r=>{
+    const d=daysUntil(r.end_date);
+    return `<tr><td class="td-mono font-bold">${r.plate}</td><td>${r.car_model||'—'}</td><td>${r.company}</td><td>${typeBadge(r.type)}</td><td>${fmtDate(r.end_date)}</td><td style="font-weight:700;color:${d<0?'var(--danger)':'var(--warn)'}">${d<0?`เกิน ${Math.abs(d)} วัน`:`อีก ${d} วัน`}</td><td>${statusBadge(r.end_date)}</td><td><button class="btn btn-primary btn-sm" onclick="openEditModal(${r.id})">✏️ ต่ออายุ</button></td></tr>`;
+  }).join('') : `<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted)">✅ ไม่มีรายการใกล้หมดอายุ</td></tr>`;
+}
+
+// ══════════════════════════════════════
+// USERS (admin)
+// ══════════════════════════════════════
+async function loadUsers() {
+  const users = await api('GET','/users');
+  document.getElementById('users-tbody').innerHTML = users.map((u,i)=>`<tr>
+    <td style="color:var(--text-muted);font-size:11px">${i+1}</td>
+    <td class="td-mono font-bold">${u.username}</td>
+    <td>${u.full_name||'—'}</td>
+    <td><span class="badge ${u.role==='admin'?'badge-blue':'badge-green'}">${u.role==='admin'?'Admin':'User'}</span></td>
+    <td>${fmtDate(u.created_at)}</td>
+    <td><div class="flex gap-2">
+      ${u.id!==currentUser.id?`<button class="btn btn-sm btn-danger btn-icon" onclick="confirmAction('ลบผู้ใช้','ลบ ${u.username} ใช่หรือไม่?',()=>deleteUser(${u.id}))">🗑️</button>`:''}
+    </div></td>
+  </tr>`).join('');
+}
+
+function openUserModal() {
+  ['u-username','u-password','u-fullname'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('u-role').value='user';
+  document.getElementById('modal-user').classList.add('open');
+}
+
+async function saveUser() {
+  const username=document.getElementById('u-username').value.trim();
+  const password=document.getElementById('u-password').value;
+  if(!username||!password){toast('กรุณากรอก username และ password','error');return;}
+  try {
+    await api('POST','/users',{username,password,full_name:document.getElementById('u-fullname').value.trim(),role:document.getElementById('u-role').value});
+    toast('✅ เพิ่มผู้ใช้เรียบร้อย','success');
+    closeModal('modal-user'); loadUsers();
+  } catch(e){toast(e.message,'error');}
+}
+
+async function deleteUser(id) {
+  await api('DELETE',`/users/${id}`);
+  toast('🗑️ ลบผู้ใช้เรียบร้อย','warn');
+  loadUsers();
+}
+
+// ══════════════════════════════════════
+// ACTIVITY LOG
+// ══════════════════════════════════════
+async function loadLogs() {
+  const logs = await api('GET','/logs');
+  document.getElementById('logs-tbody').innerHTML = logs.map(l=>`<tr>
+    <td class="td-mono" style="font-size:11px;white-space:nowrap">${new Date(l.created_at).toLocaleString('th-TH')}</td>
+    <td>${l.full_name||l.username||'—'}</td>
+    <td><span class="log-action ${l.action}">${l.action}</span></td>
+    <td style="font-size:12px;color:var(--text-muted)">${l.detail}</td>
+  </tr>`).join('');
+}
+
+// ══════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════
+async function exportExcel() {
+  const records = await api('GET','/records');
+  if (!records.length) { toast('ไม่มีข้อมูลให้ Export','error'); return; }
+  const wb = XLSX.utils.book_new();
+  const headers = ['บริษัทประกัน','ประเภทประกัน','ทะเบียนรถ','วันที่เริ่มคุ้มครอง','วันที่สิ้นสุด','เบี้ยประกัน (บาท)','วันที่ชำระ','หมายเหตุ','ยี่ห้อ/รุ่นรถ','ผู้ถือกรรมสิทธิ์','แผนกที่เบิกงบ','แผนกที่ใช้งาน','สาขาที่ใช้งาน','ครบกำหนดภาษีประจำปี'];
+  const rows = records.map(r=>[r.company,r.type,r.plate,r.start_date,r.end_date,r.premium,r.pay_date,r.note,r.car_model,r.owner,r.dept_budget,r.dept_use,r.branch,r.tax_due]);
+  const ws = XLSX.utils.aoa_to_sheet([headers,...rows]);
+  ws['!cols'] = [20,12,20,14,14,14,14,18,20,22,16,16,16,16].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws, 'ข้อมูลประกันรถ');
+  XLSX.writeFile(wb, `insurance_${new Date().toISOString().split('T')[0]}.xlsx`);
+  toast('📥 Export Excel สำเร็จ','success');
+}
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function daysUntil(d) { if(!d)return null; return Math.ceil((new Date(d)-new Date())/86400000); }
+function fmtDate(s) { if(!s||s==='—')return'—'; try{return new Date(s).toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});}catch{return s;} }
+function typeBadge(t){const m={'ชั้น 1':'badge-blue','ชั้น 2+':'badge-purple','ชั้น 3+':'badge-green','ชั้น 3':'badge-orange','พ.ร.บ.':'badge-warn'};return`<span class="badge ${m[t]||'badge-blue'}">${t||'—'}</span>`;}
+function statusBadge(end){const d=daysUntil(end);if(d===null)return'—';if(d<0)return`<span class="badge badge-red"><span class="status-dot dot-red"></span>หมดอายุ</span>`;if(d<=30)return`<span class="badge badge-warn"><span class="status-dot dot-warn"></span>ใกล้หมดอายุ</span>`;return`<span class="badge badge-green"><span class="status-dot dot-green"></span>ใช้งานได้</span>`;}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function confirmAction(title, msg, onOk) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.onclick = ()=>{ closeModal('modal-confirm'); onOk(); };
+  document.getElementById('modal-confirm').classList.add('open');
+}
+
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className=`toast ${type}`; el.textContent=msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+
+// ── INIT ──
+tryAutoLogin();
+</script>
 </body>
 </html>
