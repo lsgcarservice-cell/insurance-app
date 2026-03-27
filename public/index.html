@@ -1,6 +1,120 @@
-<h2>Login</h2>
-<input id="u" placeholder="username">
-<input id="p" type="password" placeholder="password">
-<button onclick="login()">Login</button>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Insurance SaaS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="app.js"></script>
+  <style>
+    body {
+      margin:0;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-family: 'Segoe UI';
+      background: linear-gradient(135deg,#0f172a,#1e293b);
+      color:white;
+    }
+
+    .login-box {
+      width:350px;
+      padding:40px;
+      border-radius:16px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      box-shadow:0 10px 40px rgba(0,0,0,0.4);
+      text-align:center;
+    }
+
+    h2 {
+      margin-bottom:20px;
+    }
+
+    input {
+      width:100%;
+      padding:12px;
+      margin-bottom:15px;
+      border:none;
+      border-radius:8px;
+      outline:none;
+      background:#1e293b;
+      color:white;
+    }
+
+    input::placeholder {
+      color:#94a3b8;
+    }
+
+    button {
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      background:#22c55e;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    button:hover {
+      background:#16a34a;
+    }
+
+    .error {
+      color:#f87171;
+      margin-top:10px;
+      display:none;
+    }
+
+    .logo {
+      font-size:24px;
+      margin-bottom:10px;
+    }
+
+    .subtitle {
+      color:#94a3b8;
+      margin-bottom:20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login-box">
+  <div class="logo">🚗 Insurance</div>
+  <div class="subtitle">ระบบจัดการประกันภัย</div>
+
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Sign in</button>
+
+  <div id="error" class="error">Login failed</div>
+</div>
+
+<script>
+async function login() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  const res = await fetch('/api/auth/login', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username,password})
+  });
+
+  const data = await res.json();
+
+  if(!res.ok){
+    document.getElementById('error').style.display='block';
+    return;
+  }
+
+  localStorage.setItem('ins_token', data.token);
+  location.href = '/dashboard.html';
+}
+</script>
+
+</body>
+</html>
