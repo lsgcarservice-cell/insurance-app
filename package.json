@@ -1,25 +1,14 @@
 {
   "name": "insurance-management-system",
-  "version": "2.1.0",
-  "description": "ระบบจัดการประกันภัยรถยนต์",
+  "version": "3.0.0",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "echo 'No build step required'"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "scripts": { "start": "node server.js", "dev": "nodemon server.js" },
+  "engines": { "node": ">=18.0.0" },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
     "sqlite3": "^5.1.7"
   },
-  "devDependencies": {
-    "nodemon": "^3.0.3"
-  }
+  "devDependencies": { "nodemon": "^3.0.3" }
 }

@@ -18,44 +18,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sarabun',sans-serif;background:var(--surface);color:var(--text);min-height:100vh}
 
-/* ── LOGIN ── */
-#login-screen{
-  display:flex;min-height:100vh;
-  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 50%,#1e3a8a 100%);
-  align-items:center;justify-content:center;
-}
-.login-box{
-  background:var(--white);border-radius:20px;padding:48px 44px;
-  width:400px;max-width:95vw;box-shadow:var(--shadow-lg);
-}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo .icon{
-  width:64px;height:64px;background:linear-gradient(135deg,var(--blue),var(--blue-light));
-  border-radius:16px;display:inline-flex;align-items:center;justify-content:center;
-  font-size:30px;margin-bottom:14px;box-shadow:0 4px 16px rgba(30,80,162,.35);
-}
-.login-logo h1{font-size:20px;font-weight:700;color:var(--navy)}
-.login-logo p{font-size:13px;color:var(--text-muted);margin-top:4px}
-.login-form .form-group{margin-bottom:16px}
-.login-form label{font-size:13px;font-weight:600;display:block;margin-bottom:6px;color:var(--text)}
-.login-form input{
-  width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);
-  padding:11px 14px;font-family:'Sarabun',sans-serif;font-size:14px;
-  transition:border .2s,box-shadow .2s;outline:none;
-}
-.login-form input:focus{border-color:var(--blue-light);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
-.login-error{
-  background:#fee2e2;border:1px solid #fca5a5;border-radius:var(--radius-sm);
-  padding:10px 14px;font-size:13px;color:#991b1b;margin-bottom:14px;display:none;
-}
-.login-hint{
-  margin-top:20px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);
-  font-size:12px;color:var(--text-muted);line-height:1.6;
-}
-.login-hint strong{color:var(--text)}
-
 /* ── LAYOUT ── */
-#app{display:none}
+#app{display:block}
 .layout{display:flex;min-height:100vh}
 
 /* SIDEBAR */
@@ -72,20 +36,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--surface);color:var(--text
 }
 .sidebar-logo h1{color:var(--white);font-size:13px;font-weight:700;line-height:1.35}
 .sidebar-logo p{color:rgba(255,255,255,.4);font-size:10px;margin-top:2px}
-.user-badge{
-  margin:12px 16px;padding:10px 12px;
-  background:rgba(255,255,255,.06);border-radius:var(--radius-sm);
-  display:flex;align-items:center;gap:8px;
-}
-.user-avatar{
-  width:30px;height:30px;border-radius:50%;
-  background:linear-gradient(135deg,var(--blue-light),var(--accent));
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:700;color:var(--white);flex-shrink:0;
-}
-.user-info{flex:1;min-width:0}
-.user-name{font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-role{font-size:10px;color:rgba(255,255,255,.4)}
 .nav{padding:12px 10px;flex:1;overflow-y:auto}
 .nav-section{font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase;padding:8px 10px 6px}
 .nav-item{
@@ -100,13 +50,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--surface);color:var(--text
 .nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:999px}
 .nav-badge.warn{background:var(--warn)}
 .sidebar-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07)}
-.btn-logout{
-  width:100%;padding:9px;border-radius:var(--radius-sm);
-  background:rgba(239,68,68,.12);color:#fca5a5;
-  border:none;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;
-  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.btn-logout:hover{background:rgba(239,68,68,.22);color:#fecaca}
 
 /* MAIN */
 .main{margin-left:248px;flex:1;min-height:100vh}
@@ -283,38 +226,8 @@ input.error,select.error{border-color:var(--danger)}
 </head>
 <body>
 
-<!-- ══ LOGIN SCREEN ══ -->
-<div id="login-screen" style="display:flex;min-height:100vh;background:linear-gradient(135deg,#0f1f3d 0%,#1a3561 50%,#1e3a8a 100%);align-items:center;justify-content:center">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="icon">🚗</div>
-      <h1>ระบบจัดการประกันภัยรถยนต์</h1>
-      <p>Insurance Management System v2.0</p>
-    </div>
-    <div class="login-error" id="login-error"></div>
-    <div class="login-form">
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="login-user" placeholder="กรอก username" autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="login-pass" placeholder="กรอก password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      </div>
-      <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:4px;justify-content:center" onclick="doLogin()" id="login-btn">
-        🔐 เข้าสู่ระบบ
-      </button>
-    </div>
-    <div class="login-hint">
-      <strong>บัญชีทดสอบ:</strong><br>
-      👤 admin / admin1234 (ผู้ดูแลระบบ)<br>
-      👤 user1 / user1234 (ผู้ใช้งานทั่วไป)
-    </div>
-  </div>
-</div>
-
 <!-- ══ MAIN APP ══ -->
-<div id="app" style="display:none">
+<div id="app">
 <div class="layout">
 
 <!-- SIDEBAR -->
@@ -325,13 +238,6 @@ input.error,select.error{border-color:var(--danger)}
       <div><h1>ประกันภัยรถยนต์</h1><p>Insurance System</p></div>
     </div>
   </div>
-  <div class="user-badge">
-    <div class="user-avatar" id="user-avatar">A</div>
-    <div class="user-info">
-      <div class="user-name" id="user-fullname">—</div>
-      <div class="user-role" id="user-role-label">—</div>
-    </div>
-  </div>
   <nav class="nav">
     <div class="nav-section">หลัก</div>
     <button class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
@@ -340,13 +246,8 @@ input.error,select.error{border-color:var(--danger)}
     <button class="nav-item" onclick="navigate('monthly')"><span class="nav-icon">📅</span> สรุปรายเดือน</button>
     <button class="nav-item" onclick="navigate('yearly')"><span class="nav-icon">📈</span> สรุปรายปี</button>
     <button class="nav-item" onclick="navigate('expiring')"><span class="nav-icon">⏰</span> ใกล้หมดอายุ <span class="nav-badge warn" id="nb-expiring">0</span></button>
-    <div class="nav-section admin-only" style="margin-top:8px">จัดการระบบ</div>
-    <button class="nav-item admin-only" onclick="navigate('users')"><span class="nav-icon">👥</span> จัดการผู้ใช้</button>
-    <button class="nav-item admin-only" onclick="navigate('logs')"><span class="nav-icon">📜</span> Activity Log</button>
   </nav>
-  <div class="sidebar-foot">
-    <button class="btn-logout" onclick="doLogout()">🚪 ออกจากระบบ</button>
-  </div>
+  <div class="sidebar-foot" style="color:rgba(255,255,255,.25);font-size:11px;text-align:center">v3.0 · 2568</div>
 </aside>
 
 <!-- MAIN -->
@@ -446,31 +347,6 @@ input.error,select.error{border-color:var(--danger)}
         <div class="table-wrap"><table>
           <thead><tr><th>ทะเบียนรถ</th><th>ยี่ห้อ/รุ่น</th><th>บริษัทประกัน</th><th>ประเภท</th><th>วันหมดอายุ</th><th>สถานะเวลา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
           <tbody id="expiring-tbody"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- USERS (admin) -->
-    <div class="page" id="page-users">
-      <div class="card mb-4 flex items-center justify-between">
-        <div class="font-bold" style="font-size:14px">👥 จัดการผู้ใช้งาน</div>
-        <button class="btn btn-primary btn-sm" onclick="openUserModal()">➕ เพิ่มผู้ใช้</button>
-      </div>
-      <div class="card">
-        <div class="table-wrap"><table>
-          <thead><tr><th>#</th><th>Username</th><th>ชื่อ-นามสกุล</th><th>บทบาท</th><th>วันที่สร้าง</th><th>จัดการ</th></tr></thead>
-          <tbody id="users-tbody"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- LOGS (admin) -->
-    <div class="page" id="page-logs">
-      <div class="card">
-        <div class="font-bold mb-4" style="font-size:14px">📜 Activity Log (100 รายการล่าสุด)</div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>Action</th><th>รายละเอียด</th></tr></thead>
-          <tbody id="logs-tbody"></tbody>
         </table></div>
       </div>
     </div>
@@ -606,25 +482,6 @@ input.error,select.error{border-color:var(--danger)}
   </div>
 </div>
 
-<!-- ══ MODAL: USER ══ -->
-<div class="overlay" id="modal-user">
-  <div class="modal modal-sm">
-    <div class="modal-header"><h2 id="modal-user-title">เพิ่มผู้ใช้</h2><button class="btn btn-ghost btn-sm" onclick="closeModal('modal-user')">✕</button></div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group"><label>Username <span class="req">*</span></label><input type="text" id="u-username"></div>
-        <div class="form-group"><label>Password <span class="req">*</span></label><input type="password" id="u-password" placeholder="รหัสผ่าน"></div>
-        <div class="form-group full"><label>ชื่อ-นามสกุล</label><input type="text" id="u-fullname"></div>
-        <div class="form-group full"><label>บทบาท</label><select id="u-role"><option value="user">ผู้ใช้งานทั่วไป</option><option value="admin">ผู้ดูแลระบบ</option></select></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-user')">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveUser()">💾 บันทึก</button>
-    </div>
-  </div>
-</div>
-
 <!-- ══ MODAL: CONFIRM ══ -->
 <div class="overlay" id="modal-confirm">
   <div class="modal modal-sm">
@@ -646,12 +503,9 @@ input.error,select.error{border-color:var(--danger)}
 // ══════════════════════════════════════
 // CONFIG & STATE
 // ══════════════════════════════════════
-const API = '';  // same origin (works on Railway, Render, VPS, localhost)
-let token = localStorage.getItem('ins_token');
-let currentUser = null;
+const API = '';
 let xlsxData = null;
 let xlsxHeaders = [];
-
 let _loadCount = 0;
 
 // ══════════════════════════════════════
@@ -663,31 +517,22 @@ async function api(method, path, body) {
   try {
     const res = await fetch(API + '/api' + path, {
       method,
-      headers: { 'Content-Type':'application/json', ...(token?{'Authorization':'Bearer '+token}:{}) },
+      headers: { 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined
     });
-    // Handle non-JSON or empty response
     const text = await res.text();
     let data;
     try { data = text ? JSON.parse(text) : {}; }
     catch { data = { error: `Server error (${res.status})` }; }
-
-    if (res.status === 401) {
-      // Token expired → force logout
-      token = null; localStorage.removeItem('ins_token');
-      doLogout();
-      throw new Error('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
-    }
     if (!res.ok) throw new Error(data.error || `เกิดข้อผิดพลาด (${res.status})`);
     return data;
   } catch(err) {
-    if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      throw new Error('ไม่สามารถเชื่อมต่อ Server ได้ กรุณาตรวจสอบการเชื่อมต่อ');
-    }
+    if (err.name === 'TypeError' && err.message.includes('fetch'))
+      throw new Error('ไม่สามารถเชื่อมต่อ Server ได้');
     throw err;
   } finally {
     _loadCount--;
-    if (_loadCount <= 0) { _loadCount=0; showLoading(false); }
+    if (_loadCount <= 0) { _loadCount = 0; showLoading(false); }
   }
 }
 
@@ -696,75 +541,9 @@ function showLoading(v) {
 }
 
 // ══════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════
-async function doLogin() {
-  const username = document.getElementById('login-user').value.trim();
-  const password = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-error');
-  const btn = document.getElementById('login-btn');
-  err.style.display='none';
-  if (!username||!password) { err.textContent='กรุณากรอก Username และ Password'; err.style.display=''; return; }
-  btn.innerHTML='<div class="spinner"></div> กำลังเข้าสู่ระบบ...';
-  btn.disabled=true;
-  try {
-    const data = await api('POST','/auth/login',{username,password});
-    token = data.token;
-    currentUser = data.user;
-    localStorage.setItem('ins_token', token);
-    initApp();
-  } catch(e) {
-    err.textContent = e.message;
-    err.style.display='';
-    btn.innerHTML='🔐 เข้าสู่ระบบ';
-    btn.disabled=false;
-  }
-}
-
-function doLogout() {
-  token = null; currentUser = null;
-  localStorage.removeItem('ins_token');
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-  document.getElementById('login-user').value='';
-  document.getElementById('login-pass').value='';
-}
-
-async function initApp() {
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='';
-  document.getElementById('user-fullname').textContent = currentUser.fullName || currentUser.username;
-  document.getElementById('user-role-label').textContent = currentUser.role==='admin'?'ผู้ดูแลระบบ':'ผู้ใช้งาน';
-  const nameChar = (currentUser.fullName||currentUser.username||'?')[0];
-  document.getElementById('user-avatar').textContent = nameChar.toUpperCase();
-  document.querySelectorAll('.admin-only').forEach(el => {
-    el.style.display = currentUser.role==='admin' ? '' : 'none';
-  });
-  populateYearSelect();
-  try { await navigate('dashboard'); } catch(e) { console.error('Dashboard load error:', e); }
-}
-
-// Auto-login if token exists
-async function tryAutoLogin() {
-  // Always show login screen first as fallback
-  document.getElementById('login-screen').style.display='flex';
-  document.getElementById('app').style.display='none';
-
-  if (!token) return;
-  try {
-    currentUser = await api('GET','/auth/me');
-    await initApp();
-  } catch {
-    token=null;
-    localStorage.removeItem('ins_token');
-    // Login screen already visible — nothing more needed
-  }
-}
-
-// ══════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════
-const titles = {dashboard:'Dashboard',records:'ข้อมูลประกันรถ',monthly:'สรุปรายเดือน',yearly:'สรุปรายปี',expiring:'ใกล้หมดอายุ',users:'จัดการผู้ใช้',logs:'Activity Log'};
+const titles = {dashboard:'Dashboard',records:'ข้อมูลประกันรถ',monthly:'สรุปรายเดือน',yearly:'สรุปรายปี',expiring:'ใกล้หมดอายุ'};
 
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -774,7 +553,7 @@ function navigate(page) {
   pageEl.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes(`'${page}'`))n.classList.add('active')});
   document.getElementById('page-title').textContent = titles[page]||page;
-  const loaders = {dashboard:loadDashboard,records:loadRecords,monthly:loadMonthly,yearly:loadYearly,expiring:loadExpiring,users:loadUsers,logs:loadLogs};
+  const loaders = {dashboard:loadDashboard, records:loadRecords, monthly:loadMonthly, yearly:loadYearly, expiring:loadExpiring};
   const fn = loaders[page];
   if (fn) fn().catch(err => showPageError(page, err));
 }
@@ -1174,59 +953,6 @@ async function loadExpiring() {
 }
 
 // ══════════════════════════════════════
-// USERS (admin)
-// ══════════════════════════════════════
-async function loadUsers() {
-  const users = await api('GET','/users');
-  document.getElementById('users-tbody').innerHTML = users.map((u,i)=>`<tr>
-    <td style="color:var(--text-muted);font-size:11px">${i+1}</td>
-    <td class="td-mono font-bold">${u.username}</td>
-    <td>${u.full_name||'—'}</td>
-    <td><span class="badge ${u.role==='admin'?'badge-blue':'badge-green'}">${u.role==='admin'?'Admin':'User'}</span></td>
-    <td>${fmtDate(u.created_at)}</td>
-    <td><div class="flex gap-2">
-      ${u.id!==currentUser.id?`<button class="btn btn-sm btn-danger btn-icon" onclick="confirmAction('ลบผู้ใช้','ลบ ${u.username} ใช่หรือไม่?',()=>deleteUser(${u.id}))">🗑️</button>`:''}
-    </div></td>
-  </tr>`).join('');
-}
-
-function openUserModal() {
-  ['u-username','u-password','u-fullname'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('u-role').value='user';
-  document.getElementById('modal-user').classList.add('open');
-}
-
-async function saveUser() {
-  const username=document.getElementById('u-username').value.trim();
-  const password=document.getElementById('u-password').value;
-  if(!username||!password){toast('กรุณากรอก username และ password','error');return;}
-  try {
-    await api('POST','/users',{username,password,full_name:document.getElementById('u-fullname').value.trim(),role:document.getElementById('u-role').value});
-    toast('✅ เพิ่มผู้ใช้เรียบร้อย','success');
-    closeModal('modal-user'); loadUsers();
-  } catch(e){toast(e.message,'error');}
-}
-
-async function deleteUser(id) {
-  await api('DELETE',`/users/${id}`);
-  toast('🗑️ ลบผู้ใช้เรียบร้อย','warn');
-  loadUsers();
-}
-
-// ══════════════════════════════════════
-// ACTIVITY LOG
-// ══════════════════════════════════════
-async function loadLogs() {
-  const logs = await api('GET','/logs');
-  document.getElementById('logs-tbody').innerHTML = logs.map(l=>`<tr>
-    <td class="td-mono" style="font-size:11px;white-space:nowrap">${new Date(l.created_at).toLocaleString('th-TH')}</td>
-    <td>${l.full_name||l.username||'—'}</td>
-    <td><span class="log-action ${l.action}">${l.action}</span></td>
-    <td style="font-size:12px;color:var(--text-muted)">${l.detail}</td>
-  </tr>`).join('');
-}
-
-// ══════════════════════════════════════
 // EXPORT
 // ══════════════════════════════════════
 async function exportExcel() {
@@ -1273,7 +999,8 @@ document.querySelectorAll('.overlay').forEach(o=>{
 });
 
 // ── INIT ──
-tryAutoLogin();
+populateYearSelect();
+navigate('dashboard');
 </script>
 </body>
 </html>
